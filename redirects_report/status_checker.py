@@ -6,7 +6,7 @@ import logging
 import asyncio
 import aiohttp
 from typing import List, Dict, Any, Tuple
-import utils # import timing_decorator, chunk_list, setup_logging
+import utils
 
 logger = logging.getLogger(__name__)
 

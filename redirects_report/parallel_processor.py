@@ -8,9 +8,8 @@ import requests
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import List, Tuple, Dict, Any
-from datetime import datetime
 import os
-import utils # import timing_decorator, log_api_call, create_output_filename, setup_logging
+import utils
 from ratelimit import limits, sleep_and_retry
 
 logger = logging.getLogger(__name__)

@@ -201,6 +201,9 @@ python -m redirects_report.identify_redirects  --org org --website website --bea
 
 # New Bash call, makes use of .env file to handle arguments and values passed to python call
 bash redirects_report/run_script.sh
+
+# Bash call, alternative syntax, and with optional arguments passed through
+./redirects_report/run_script.sh --start-date 2020-09-01 --end-date 2020-09-30 --do-404-or-200 1 --output-prefix redirects_report
 ```
 
 3. **Update automation scripts**:

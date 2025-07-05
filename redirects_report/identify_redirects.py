@@ -4,13 +4,10 @@ Integrates date range automation, parallel processing, and async status checking
 """
 import argparse
 import logging
-import os
-import pathlib
 from typing import List, Dict, Any, Optional
-from datetime import datetime
 
-import utils # import setup_logging, timing_decorator, create_output_filename
-import daterange_builder # import DateRangeBuilder, create_date_ranges_from_tuples
+import utils
+import daterange_builder
 from .parallel_processor import ParallelProcessor, optimize_worker_count
 from .status_checker import check_redirect_statuses_sync
 

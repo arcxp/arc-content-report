@@ -27,7 +27,7 @@ python3 -m redirects_report.identify_redirects  \
   --bearer-token "$BEARER_TOKEN" \
   --website "$WEBSITE" \
   --website-domain "$WEBSITE_DOMAIN" \
-  --output-prefix "$OUTPUT_PREFIX" \
+  --output-prefix "${DEFAULT_OUTPUT_PREFIX:-}" \
   --environment "$ENVIRONMENT" \
   --do-404-or-200 "${DO_404_OR_200:-1}" \
   --max-workers "${MAX_WORKERS:-8}" \
