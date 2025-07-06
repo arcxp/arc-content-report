@@ -56,22 +56,7 @@ graph TD
 ```
 
 ## 🚀 Quick Start
-
-### Prerequisites
-- Python 3.9+
-- Arc XP API credentials
-
-### Local Development Setup
-
-1. **Clone and setup environment**:
-```bash
-cd arc-content-report
-python3 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-pip install -r requirements.txt
-```
-
-2. **Run optimized script**:
+**Run redirect reports script**:
 ```bash
 python -m redirects_report.identify_redirects.py \
   --org your-org-id \
@@ -83,16 +68,6 @@ python -m redirects_report.identify_redirects.py \
   --end-date 2024-01-31 \
   --auto-optimize-workers
 ```
-
-## 📊 Performance Comparison
-
-| Metric | Original Script | Optimized Script | Improvement |
-|--------|----------------|------------------|-------------|
-| Date Range Handling | Manual splitting | Automatic binary search | 90% time saved |
-| API Calls | Serial | Parallel (5 workers) | 5x faster |
-| Status Checking | Serial HTTP | Async batch (100 concurrent) | 20x faster |
-| Memory Usage | Load all data | Streaming processing | 50% reduction |
-| Error Recovery | Basic | Retry with backoff | 95% reliability |
 
 ## 🔧 Configuration Options
 
@@ -120,6 +95,19 @@ python -m redirects_report.identify_redirects.py \
 - `WEBSITE`: Website identifier
 - `WEBSITE_DOMAIN`: Website domain
 
+### Script calls
+
+```bash
+# Python call
+python -m redirects_report.identify_redirects  --org org --website website --bearer-token token --website-domain https://domain --auto-optimize-workers
+
+# Bash call, makes use of .env file to handle arguments and values passed to python call
+bash redirects_report/run_script.sh
+
+# Bash call, alternative syntax, and with optional arguments passed through
+./redirects_report/run_script.sh --start-date 2020-09-01 --end-date 2020-09-30 --do-404-or-200 1 --output-prefix redirects_report
+```
+
 ## 🧪 Testing
 
 ### Run Unit Tests
@@ -141,6 +129,13 @@ print(f'Optimized ranges: {len(ranges)}')
 ```
 
 ## 📈 Monitoring and Logging
+
+### Debug Mode
+Enable debug logging:
+```bash
+export LOG_LEVEL=DEBUG
+python -m redirects_report.identify_redirects [args]
+```
 
 ### Log Files
 - `logs/redirects.log`: Redirects application log
@@ -174,53 +169,6 @@ Solution: The script automatically handles rate limiting. If issues persist, red
 Error: MemoryError
 Solution: Process smaller date ranges or reduce batch sizes in status_checker.py
 ```
-
-### Debug Mode
-Enable debug logging:
-```bash
-export LOG_LEVEL=DEBUG
-python -m redirects_report.identify_redirects [args]
-```
-
-## 📋 Migration Guide
-
-### From Original Scripts
-
-1. **Update dependencies**:
-```bash
-pip install -r requirements.txt
-```
-
-2. **Replace script calls**:
-```bash
-# Old Python call
-python identify-old-redirects.py --org org --bearer-token token --website nzh
-
-# New Python call
-python -m redirects_report.identify_redirects  --org org --website website --bearer-token token --website-domain https://domain --auto-optimize-workers
-
-# New Bash call, makes use of .env file to handle arguments and values passed to python call
-bash redirects_report/run_script.sh
-
-# Bash call, alternative syntax, and with optional arguments passed through
-./redirects_report/run_script.sh --start-date 2020-09-01 --end-date 2020-09-30 --do-404-or-200 1 --output-prefix redirects_report
-```
-
-3. **Update automation scripts**:
-Replace references to old scripts with optimized versions.
-
-## 🔮 Future Enhancements
-
-### Planned Features
-- **Splunk Integration**: Automatic hit count retrieval
-- **Advanced Filtering**: Content type and metadata filtering
-- **Real-time Monitoring**: Live performance dashboards
-- **Machine Learning**: Predictive optimization of worker counts
-
-### Performance Targets
-- **10x faster** processing for large datasets
-- **99.9% reliability** with automatic error recovery
-- **Zero-downtime** deployments with blue-green strategy
 
 ## 📞 Support
 
