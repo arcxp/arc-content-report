@@ -56,7 +56,8 @@ graph TD
 ```
 
 ## 🚀 Quick Start
-**Run redirect reports script**:
+**Run redirects report script as a python module from the arc-content-report/ directory**:
+
 ```bash
 python -m redirects_report.identify_redirects.py \
   --org your-org-id \
@@ -67,6 +68,11 @@ python -m redirects_report.identify_redirects.py \
   --start-date 2024-01-01 \
   --end-date 2024-01-31 \
   --auto-optimize-workers
+```
+**Run redirects report script with bash script:**
+```bash
+bash redirects_report/run_script.sh
+./redirects_report/run_script.sh
 ```
 
 ## 🔧 Configuration Options
@@ -101,10 +107,10 @@ python -m redirects_report.identify_redirects.py \
 # Python call
 python -m redirects_report.identify_redirects  --org org --website website --bearer-token token --website-domain https://domain --auto-optimize-workers
 
-# Bash call, makes use of .env file to handle arguments and values passed to python call
+# Bash call, relying on .env file for arguments passed to python call
 bash redirects_report/run_script.sh
 
-# Bash call, alternative syntax, and with optional arguments passed through
+# Bash call, alternative syntax, overriding some optional arguments
 ./redirects_report/run_script.sh --start-date 2020-09-01 --end-date 2020-09-30 --do-404-or-200 1 --output-prefix redirects_report
 ```
 

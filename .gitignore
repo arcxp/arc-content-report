@@ -8,6 +8,7 @@ logs/*.log
 # Generated output files
 spreadsheets/*.csv
 spreadsheets/output/
+*.csv
 
 # Python
 __pycache__/
