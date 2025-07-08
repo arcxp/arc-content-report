@@ -4,19 +4,23 @@
 
 ### Core Scripts
 - **`redirects_report/identify_redirects.py`** - Redirects report script
-- **`redirects_report/parallel_processor.py`** - Parallel processing engine with worker optimization
-- **`redirects_report/status_checker.py`** - Async HTTP status checking (200/404 validation)
+- **`redirects_report/parallel_processor.py`** - Parallel processing engine for redirects with worker optimization
+- **`redirects_report/status_checker.py`** - Async Redirects HTTP status checking (200/404 validation)
+- **`wires_report/identify_wires.py`** - Wires report script
+- **`wires_report/parallel_processor.py`** - Parallel processing engine for wires with worker optimization
 - **`daterange_builder.py`** - Automatic date range splitting for API limits
 - **`utils.py`** - Utility functions, logging, and timing decorators
 
 ### Configuration & Setup
 - **`redirects_report/run_script.sh`** - Convenient shell script for running the redirects report script
+- **`wires_report/run_script.sh`** - Convenient shell script for running the wires report script
 - **`config.env`** - Template for API credentials (copy to .env)
 - **`requirements.txt`** - Python dependencies
 - **`.gitignore`** - Prevents committing sensitive files and test outputs
 
 ### Documentation
 - **`redirects_report/README.md`** - Redirects report documentation and usage guide
+- **`wires_report/README.md`** - Wires report documentation and usage guide
 - **`README.md`** - This file
 
 ### Testing
@@ -52,7 +56,7 @@ pip install -r requirements.txt
 2. Copy credentials: `cp config.env .env`
 3. Edit `.env` with your API credentials
 4. Run redirects report: See `redirects_report/README.md`
-5. Run wires report: TBD
+5. Run wires report: See `wires_report/README.md`
 6. Run images report: TBD
 
 ## 📄 License

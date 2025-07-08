@@ -1,5 +1,5 @@
 """
-Utility functions for Arc XP Org Redirects Reports
+Utility functions for Arc XP Content Reports
 """
 import functools
 import logging
@@ -9,7 +9,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 import os
 
 # Configure logging
-def setup_logging(log_level: str = "INFO", log_file: str = "logs/redirects.log") -> logging.Logger:
+def setup_logging(log_level: str = "INFO", log_file: str = "logs/optiization.log") -> logging.Logger:
     """Setup logging configuration for the redirects report scripts."""
     os.makedirs("logs", exist_ok=True)
     

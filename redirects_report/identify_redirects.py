@@ -1,5 +1,5 @@
 """
-Optimized Arc XP org Redirect Reports Script
+Arc XP Redirect Reports Script
 Integrates date range automation, parallel processing, and async status checking
 """
 import argparse
@@ -8,13 +8,13 @@ from typing import List, Dict, Any, Optional
 
 import utils
 import daterange_builder
-from .parallel_processor import ParallelProcessor, optimize_worker_count
+from .parallel_processor import RedirectsParallelProcessor, optimize_worker_count
 from .status_checker import check_redirect_statuses_sync
 
 logger = logging.getLogger(__name__)
 
-class OptimizedRedirectReporter:
-    """Optimized redirect reporter with all performance improvements."""
+class RedirectsReporter:
+    """Redirects reporter with all performance improvements."""
     
     def __init__(
         self,
@@ -39,13 +39,13 @@ class OptimizedRedirectReporter:
         self.output_prefix = output_prefix
         self.max_workers = max_workers
         self.auto_optimize_workers = auto_optimize_workers
-        
+
         # Setup logging
-        utils.setup_logging()
+        utils.setup_logging(log_file="logs/redirects.log")
         
         # Initialize components
         self.date_builder = daterange_builder.DateRangeBuilder(bearer_token, org, website, environment)
-        self.parallel_processor = ParallelProcessor(
+        self.parallel_processor = RedirectsParallelProcessor(
             bearer_token, org, website, environment, max_workers
         )
     
@@ -113,7 +113,7 @@ class OptimizedRedirectReporter:
         Returns:
             Report summary dictionary
         """
-        logger.info(f"Starting optimized redirect report generation")
+        logger.info(f"Starting redirects report generation")
         logger.info(f"Environment: {self.env.upper()}")
         logger.info(f"Website: {self.website}")
         logger.info(f"Date range: {start_date} to {end_date}")
@@ -144,8 +144,8 @@ class OptimizedRedirectReporter:
         return summary
 
 def main():
-    """Main entry point for optimized redirect identification."""
-    parser = argparse.ArgumentParser(description="Optimized Arc XP Organization Redirects Report")
+    """Main entry point for redirects report."""
+    parser = argparse.ArgumentParser(description="Arc XP Redirects Report")
     
     # Required arguments
     parser.add_argument("--org", required=True, help="Arc XP organization ID")
@@ -169,8 +169,8 @@ def main():
     args = parser.parse_args()
     
     # Setup logging
-    utils.setup_logging()
-    logger.info("Starting optimized redirect identification")
+    utils.setup_logging(log_file="logs/redirects.log")
+    logger.info("Starting redirects report")
 
     # don't log full bearer token, truncate it instead
     args_copy = vars(args).copy()
@@ -179,7 +179,7 @@ def main():
     
     try:
         # Create reporter
-        reporter = OptimizedRedirectReporter(
+        reporter = RedirectsReporter(
             bearer_token=args.bearer_token,
             org=args.org,
             environment=args.environment,
@@ -188,8 +188,7 @@ def main():
             do_404_or_200=bool(args.do_404_or_200),
             report_folder=args.report_folder,
             output_prefix=args.output_prefix,
-            max_workers=args.max_workers,
-            auto_optimize_workers=args.auto_optimize_workers
+            max_workers=args.max_workers
         )
         
         # Generate report

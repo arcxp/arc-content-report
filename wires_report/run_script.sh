@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Arc XP Redirects Report Script Runner
+# Arc XP Wires Report Script Runner
 # Load credentials from .env file and run the optimized script
 
 # Get the directory where the script itself resides
@@ -21,16 +21,20 @@ fi
 # Load environment variables
 source $ENV_FILE
 
+# Optionally set Q_EXTRA_FIELDS in your .env or environment to add ANS fields to _sourceInclude
+# Example: export Q_EXTRA_FIELDS="distributor.name,source.system"
+#   ${Q_EXTRA_FIELDS:+--q-extra-fields "$Q_EXTRA_FIELDS"} \
+
 # Run the optimized script
-python3 -m redirects_report.identify_redirects  \
+python3 -m wires_report.identify_wires  \
   --org "$ORG_ID" \
   --bearer-token "$BEARER_TOKEN" \
   --website "$WEBSITE" \
-  --website-domain "$WEBSITE_DOMAIN" \
-  --output-prefix "${DEFAULT_REDIRECTS_OUTPUT_PREFIX:-}" \
   --environment "$ENVIRONMENT" \
-  --do-404-or-200 "${DO_404_OR_200:-1}" \
   --max-workers "${MAX_WORKERS:-8}" \
   --start-date "${DEFAULT_START_DATE:-}" \
   --end-date "${DEFAULT_END_DATE:-}" \
-  "$@" 
+  --output-prefix "${DEFAULT_WIRES_OUTPUT_PREFIX:-}" \
+  --q-extra-filters "${Q_EXTRA_FILTERS:-}" \
+  --q-extra-fields "${Q_EXTRA_FIELDS:-}" \
+  "$@"

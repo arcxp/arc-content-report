@@ -1,6 +1,6 @@
-# Arc XP Redirect Reports - Optimized Scripts
+# Arc XP Redirects Reports
 
-This document describes the optimized version of the Arc XP redirect identification scripts with significant performance improvements.
+This document describes the optimized version of the Arc XP redirects reports script with significant performance improvements.
 
 ## 🚀 Key Improvements
 
@@ -43,7 +43,7 @@ arc-content-report/
 ```mermaid
 graph TD
     A[User Input] --> B[DateRangeBuilder]
-    B --> C[ParallelProcessor]
+    B --> C[RedirectsParallelProcessor]
     C --> D[AsyncStatusChecker]
     D --> E[CSV Export]
     
@@ -66,8 +66,7 @@ python -m redirects_report.identify_redirects.py \
   --website-domain https://www.your-domain.com \
   --environment sandbox \
   --start-date 2024-01-01 \
-  --end-date 2024-01-31 \
-  --auto-optimize-workers
+  --end-date 2024-01-31 
 ```
 **Run redirects report script with bash script:**
 ```bash
@@ -91,7 +90,6 @@ bash redirects_report/run_script.sh
 - `--end-date`: End date for filtering (YYYY-MM-DD or YYYY-MM-DDTHH:MM:SS)
 - `--do-404-or-200`: Enable status checking (0=no, 1=yes, default: 0)
 - `--max-workers`: Maximum parallel workers (default: 5)
-- `--auto-optimize-workers`: Automatically optimize worker count
 - `--report-folder`: Output directory (default: spreadsheets)
 - `--output-prefix`: Prefix string for output filename (default: none)
 
@@ -105,7 +103,7 @@ bash redirects_report/run_script.sh
 
 ```bash
 # Python call
-python -m redirects_report.identify_redirects  --org org --website website --bearer-token token --website-domain https://domain --auto-optimize-workers
+python -m redirects_report.identify_redirects  --org org --website website --bearer-token token --website-domain https://domain 
 
 # Bash call, relying on .env file for arguments passed to python call
 bash redirects_report/run_script.sh
@@ -175,6 +173,17 @@ Solution: The script automatically handles rate limiting. If issues persist, red
 Error: MemoryError
 Solution: Process smaller date ranges or reduce batch sizes in status_checker.py
 ```
+
+## 📊 Output Format
+
+The script generates CSV files with the following columns:
+- `identifier`: Arc XP content ID
+- `canonical_url`: URL that will cause an HTTP redirect response, the source URLL
+- `redirect_url`: The Arc XP object URL or external site URL which will be delivered, the target URL
+- `created_date`: Content creation date
+- `website`: Website where the wire is published 
+- `environment`: Environment (production/sandbox)
+- `check_404_or_200`: The HTTP status delivered when the redirect is activated. Filled when the do_404_or_200 flag is included in the script call and is True
 
 ## 📞 Support
 
