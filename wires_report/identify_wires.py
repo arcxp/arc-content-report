@@ -149,7 +149,7 @@ def main():
     args = parser.parse_args()
     
     # Setup logging
-    utils.setup_logging('wires')
+    utils.setup_logging(f'{args.org}_wires')
     logger.info("Starting wires report")
 
     # don't log full bearer token, truncate it instead

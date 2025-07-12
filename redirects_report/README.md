@@ -1,18 +1,19 @@
 # Arc XP Redirects Reports
 
-This document describes the optimized version of the Arc XP redirects reports script with significant performance improvements.
+Identifies and validates redirects within Arc XP content, checking HTTP status codes (200/301/404) for redirect URLs to help clean up broken or outdated redirects.
 
-## 🚀 Key Improvements
+## 🚀 Features
 
-### Performance Optimizations
-- **Date Range Automation**: Automatic splitting of large date ranges to handle API limits
-- **Parallel Processing**: Concurrent API calls with configurable worker pools
-- **Async HTTP Status Checking**: Efficient parallel status validation using aiohttp
-- **Memory Optimization**: Streaming data processing and efficient DataFrame operations
+### Core Functionality
+- **Redirect Discovery**: Identifies redirects within specified date ranges
+- **HTTP Status Validation**: Checks redirect URLs for 200, 301, and 404 responses
+- **Flexible Date Filtering**: Supports both date and datetime formats
+- **Environment Support**: Works with both sandbox and production environments
 
-### Automation Features
-- **Comprehensive Logging**: Detailed performance monitoring and error tracking
-- **Auto-scaling**: Dynamic worker count optimization based on performance
+### Output & Analysis
+- **CSV Export**: Generates detailed reports with redirect metadata
+- **Status Tracking**: Records HTTP response codes for each redirect URL
+- **Batch Processing**: Handles large datasets efficiently
 
 ## 📁 Project Structure
 
@@ -112,52 +113,6 @@ bash redirects_report/run_script.sh
 ./redirects_report/run_script.sh --start-date 2020-09-01 --end-date 2020-09-30 --do-404-or-200 1 --output-prefix redirects_report
 ```
 
-## 🧪 Testing
-
-### Run Unit Tests
-```bash
-python -m pytest tests/ -v
-```
-
-### Run Performance Tests
-```bash
-python -c "
-from redirects_report.parallel_processor import optimize_worker_count
-from daterange_builder import DateRangeBuilder
-
-# Test date range optimization
-builder = DateRangeBuilder('token', 'org', 'website')
-ranges = builder.build_optimal_ranges('2024-01-01', '2024-01-31')
-print(f'Optimized ranges: {len(ranges)}')
-"
-```
-
-## 📈 Monitoring and Logging
-
-### Debug Mode
-Enable debug logging:
-```bash
-export LOG_LEVEL=DEBUG
-python -m redirects_report.identify_redirects [args]
-```
-
-### Log Files
-- `logs/redirects.log`: Redirects application log
-- `logs/initial_profile.log`: Performance profiling data
-
-### Log Levels
-- `INFO`: General operation information
-- `WARNING`: Non-critical issues
-- `ERROR`: Critical errors requiring attention
-- `DEBUG`: Detailed debugging information
-
-### Performance Metrics
-The script automatically logs:
-- Processing time per phase
-- API call response times
-- Memory usage statistics
-- Worker utilization rates
-
 ## 🛠️ Troubleshooting
 
 ### Common Issues
@@ -184,12 +139,6 @@ The script generates CSV files with the following columns:
 - `website`: Website where the wire is published 
 - `environment`: Environment (production/sandbox)
 - `check_404_or_200`: The HTTP status delivered when the redirect is activated. Filled when the do_404_or_200 flag is included in the script call and is True
-
-## 📞 Support
-
-For issues and questions:
-1. Check the troubleshooting section
-2. Review logs in `logs/redirects.log`
 
 ## 📄 License
 

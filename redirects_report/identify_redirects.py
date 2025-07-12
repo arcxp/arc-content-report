@@ -169,7 +169,7 @@ def main():
     args = parser.parse_args()
     
     # Setup logging
-    utils.setup_logging('redirects')
+    utils.setup_logging(f'{args.org}_redirects')
     logger.info("Starting redirects report")
 
     # don't log full bearer token, truncate it instead

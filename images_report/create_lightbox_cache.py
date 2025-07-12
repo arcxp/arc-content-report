@@ -119,7 +119,7 @@ class LightboxCache:
             if not self.lightbox_total:
                 self.lightbox_total = int(res.headers["X-Results-Total"])
                 self.logger.info(
-                    f"Found {self.lightbox_total} lightboxes, {math.ceil(self.lightbox_total/100)} pages of 100 items per page"
+                    f"Found {self.lightbox_total} {self.org.upper()} lightboxes, {math.ceil(self.lightbox_total/100)} pages of 100 items per page"
                 )
                 self.pbar = tqdm.tqdm(total=self.lightbox_total)
 

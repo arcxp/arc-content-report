@@ -1,4 +1,4 @@
-# Images Report Module
+# Arc XP Unused Published Images Report
 
 This module contains tools for analyzing and managing published and unreferenced photos in Arc XP Photo Center.
 
@@ -17,18 +17,45 @@ This repository contains a comprehensive suite of scripts to identify and manage
 - **Batch Processing**: Supports both individual photo processing and bulk operations via CSV files
 
 ### Performance & Caching
-- **Lightbox Cache**: Creates and maintains a cache of lightbox data for faster photo analysis
+- **Lightbox Cache**: Creates and maintains a cache of lightbox data for analysis of photos used in lightboxes, as this can't be determined via API
 - **Parallel Processing**: Optimized for high-volume operations with configurable worker threads and rate limiting
 - **Environment Support**: Full support for both sandbox and production environments
 
 ## Workflow
 
-1. **Setup**: Create lightbox cache for your organization
-2. **Analysis**: Run photo analysis to identify unused photos
+1. **Setup**: Create lightbox cache for your organization and environment
+2. **Analysis**: Run photo analysis to identify unused published photos
 3. **Review**: Examine generated CSV files to verify candidates for cleanup
 4. **Cleanup**: Execute deletion or expiration of identified unused photos
 
 This module ensures safe, efficient cleanup of unused photos while preserving all actively used content.
+
+## 🏗️ Architecture
+
+```mermaid
+graph TD
+    A[User Input] --> B[Lightbox Cache Creation]
+    B --> C[Photo Analysis]
+    C --> F[Usage Analysis]
+    F --> G[CSV Export]
+    
+    C --> H[Parallel Processing]
+    H --> I[Rate Limiting]
+    I --> J[Data Processing]
+    
+    G --> K[Review & Filter]
+    K --> L[Photo Deletion/Expiration]
+    
+    subgraph "Analysis Components"
+        N[Published Stories Check]
+        O[Galleries Check]
+        P[Lightbox Cache Check]
+    end
+    
+    F --> N
+    F --> O
+    F --> P
+```
 
 ## Files
 
@@ -191,8 +218,8 @@ Deletes or expires photos based on analysis results targeting Photo IDs via CSV 
 
 The module uses the following environment variables (in addition to ORG_ID and BEARER_TOKEN):
 
-- `LIGHTBOX_CACHE_DB` - Database name for lightbox cache
-- `LIGHTBOX_CACHE_DB_SANDBOX` - Database name for sandbox environment
+- `LIGHTBOX_CACHE_DB` - Database name for lightbox cache in production
+- `LIGHTBOX_CACHE_DB_SANDBOX` - Database name for lightbox cache in sandbox environment
 
 ## Performance
 
@@ -201,7 +228,7 @@ The module includes several performance optimizations:
 - **Parallel Processing**: Uses ThreadPoolExecutor for concurrent API calls
 - **Rate Limiting**: Built-in rate limiting to avoid overwhelming APIs
 - **Batch Processing**: Processes items in configurable batch sizes
-- **Caching**: Lightbox data is cached in SQLite for faster lookups
+- **Caching**: Lightbox data is cached in SQLite because there is not a way to return photos in a lightbox by photo id using the API
 
 ### Benchmarking
 Each script provides comprehensive statistics:
@@ -214,8 +241,10 @@ Each script provides comprehensive statistics:
 ### Example Output
 ```
 ==================================================
-COMPREHENSIVE PHOTO ANALYSIS STATISTICS
+PUBLISHED PHOTO ANALYSIS STATISTICS
 ==================================================
+Date range: None (all dates queried)
+Photo Center filter: Only published wires
 Total photos processed: 1,250
 Photos to delete: 890
 Photos preserved: 360
@@ -263,6 +292,100 @@ Average time per photo: 0.108s
 - All operations are logged for audit purposes
 - The lightbox cache should be updated periodically for accurate results
 - Use sandbox environment for testing before running in production 
+
+## 🔧 Troubleshooting
+
+### Common Issues and Solutions
+
+**Problem**: `401 Unauthorized` or `403 Forbidden` errors
+```
+Error: API request failed: 401 - {"error": "invalid_token"}
+```
+
+**Solutions**:
+1. **Check Bearer Token**: Verify your bearer token is valid and not expired
+2. **Environment Mismatch**: Ensure you're using the correct environment (sandbox vs production)
+3. **Token Permissions**: Confirm your token has the necessary permissions for Photo API and Content API
+4. **Token Format**: Ensure the token is properly formatted in your `.env` file
+
+**Problem**: Lightbox cache issues, `IncompleteLightboxCacheDbException` error
+```
+databases/lightbox_photo_cache.db must exist and be initialized with data for the correct environment. run the script create_lightbox_cache.py to completion.
+```
+
+**Solutions**:
+1. **Run Lightbox Cache**: Execute the lightbox cache creation script first:
+   ```bash
+   ./images_report/run_lightbox_cache.sh --environment=production
+   ```
+2. **Check Database Path**: Verify the database file exists in `databases/` directory
+3. **Environment Consistency**: Ensure you're using the same environment for cache creation and analysis
+4. **Database Permissions**: Check that the script has write permissions to the `databases/` directory
+
+**Problem**: ApI rate limiting `429 Too Many Requests` errors or slow performance
+```
+Error: API request failed: 429 - {"error": "rate_limit_exceeded"}
+```
+
+**Solutions**:
+1. **Reduce Rate Limit**: Lower the `--rate-limit` parameter (default: 10 requests/second)
+   ```bash
+   ./images_report/run_published_photo_analysis.sh --rate-limit=5
+   ```
+2. **Reduce Workers**: Decrease the `--max-workers` parameter (default: 8)
+   ```bash
+   ./images_report/run_published_photo_analysis.sh --max-workers=4
+   ```
+3. **Add Delays**: The script includes automatic rate limiting, but you can increase delays if needed
+
+**Problem**: High memory usage or out-of-memory errors with large datasets
+
+**Solutions**:
+1. **Reduce Batch Size**: Lower the `--batch-size` parameter (default: 100)
+   ```bash
+   ./images_report/run_published_photo_analysis.sh --batch-size=50
+   ```
+2. **Process in Smaller Chunks**: Use date ranges to process smaller datasets
+3. **Monitor Resources**: Check system memory usage during processing
+
+**Problem**: `ConnectionError`, `TimeoutError`, or network-related failures
+```
+Error: HTTPSConnectionPool(host='api.example.arcpublishing.com', port=443): Max retries exceeded
+```
+
+**Solutions**:
+1. **Check Network**: Verify internet connectivity and firewall settings
+2. **Increase Timeout**: The script uses 30-second timeouts by default
+3. **Retry Logic**: The script includes automatic retry logic for transient failures
+4. **Proxy Settings**: Configure proxy settings if required by your network
+
+**Problem**: Missing or corrupted CSV output files
+
+**Solutions**:
+1. **Check Permissions**: Ensure write permissions to the `spreadsheets/` directory
+2. **Disk Space**: Verify sufficient disk space for output files
+3. **File Locking**: Ensure no other processes are accessing the CSV files
+4. **Encoding Issues**: CSV files are UTF-8 encoded by default
+
+**Problem**: Incorrect date filtering or no results returned
+
+**Solutions**:
+1. **Date Format**: Use YYYY-MM-DD format for dates
+   ```bash
+   --start-date=2024-01-01 --end-date=2024-01-31
+   ```
+2. **Date Logic**: Ensure start date is before end date
+3. **Timezone**: Dates are processed in UTC
+4. **Date Validation**: The script validates date formats and ranges
+
+**Problem**: Photos not being deleted or expired as expected
+
+**Solutions**:
+1. **Check CSV Format**: Ensure CSV file contains valid photo IDs in the first column
+2. **Preserved Photos**: Check if photos are being filtered by the preserved list
+3. **API Permissions**: Verify your token has delete permissions for Photo API
+4. **Hard Delete vs Expire**: Understand the difference between `--hard-delete` and default expiration
+
 
 ## 📚 API and ALC Documentation
 
