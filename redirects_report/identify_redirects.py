@@ -41,7 +41,7 @@ class RedirectsReporter:
         self.auto_optimize_workers = auto_optimize_workers
 
         # Setup logging
-        utils.setup_logging(log_file="logs/redirects.log")
+        utils.setup_logging('redirects')
         
         # Initialize components
         self.date_builder = daterange_builder.DateRangeBuilder(bearer_token, org, website, environment)
@@ -169,7 +169,7 @@ def main():
     args = parser.parse_args()
     
     # Setup logging
-    utils.setup_logging(log_file="logs/redirects.log")
+    utils.setup_logging('redirects')
     logger.info("Starting redirects report")
 
     # don't log full bearer token, truncate it instead

@@ -39,7 +39,7 @@ class WiresReporter:
         self.auto_optimize_workers = auto_optimize_workers
         self.q_extra_fields = q_extra_fields or []
         # Setup logging
-        utils.setup_logging(log_file="logs/wires.log")
+        utils.setup_logging('wires')
         # Initialize components
         self.date_builder = daterange_builder.DateRangeBuilder(bearer_token, org, website, environment)
         self.parallel_processor = WiresParallelProcessor(
@@ -149,7 +149,7 @@ def main():
     args = parser.parse_args()
     
     # Setup logging
-    utils.setup_logging(log_file="logs/wires.log")
+    utils.setup_logging('wires')
     logger.info("Starting wires report")
 
     # don't log full bearer token, truncate it instead

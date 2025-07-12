@@ -24,7 +24,12 @@
 - **`README.md`** - This file
 
 ### Testing
-- **`tests/test_daterange_builder.py`** - Unit tests for date range functionality
+
+Run the test suite to verify the module is working correctly:
+
+```bash
+PYTHONPATH=. pytest tests/ --maxfail=3 --disable-warnings -v
+```
 
 ### Directories
 - **`logs/`** - Log files (auto-created, gitignored)
