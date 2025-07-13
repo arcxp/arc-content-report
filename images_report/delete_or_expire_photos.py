@@ -29,6 +29,7 @@ class DeleteDefunctPhotos:
         image_arc_id: str = "",
         images_csv: str = "",
         hard_delete: bool = False,
+        dry_run: bool = False,
         max_workers: int = 8,
         batch_size: int = 100,
         rate_limit: int = 10
@@ -39,6 +40,7 @@ class DeleteDefunctPhotos:
         self.image_arc_id = image_arc_id
         self.images_csv = images_csv
         self.hard_delete = bool(hard_delete)
+        self.dry_run = bool(dry_run)
         self.max_workers = max_workers
         self.batch_size = batch_size
         self.rate_limiter = RateLimiter(rate_limit)
@@ -50,12 +52,18 @@ class DeleteDefunctPhotos:
             "photos_deleted": 0,
             "photos_expired": 0,
             "photos_failed": 0,
+            'photos_skipped': 0,
             "api_calls": 0,
             "start_time": time.time()
         }
 
     def delete_single_photo(self, photo_id: str) -> Optional[Dict[str, Any]]:
         """Delete a single photo by its ARC ID"""
+        if self.dry_run:
+            self.stats["photos_deleted"] += 1
+            self.logger.info(f"[DRY RUN] Would delete photo {photo_id}")
+            return {"photo_id": photo_id, "status": "deleted", "response": 200}
+        
         try:
             self.rate_limiter.wait_if_needed()
             res = requests.delete(
@@ -80,6 +88,11 @@ class DeleteDefunctPhotos:
 
     def expire_single_photo(self, photo_id: str) -> Optional[Dict[str, Any]]:
         """Expire a single photo by setting its expiration date"""
+        if self.dry_run:
+            self.stats["photos_expired"] += 1
+            self.logger.info(f"[DRY RUN] Would expire photo {photo_id}")
+            return {"photo_id": photo_id, "status": "expired", "response": 200}
+        
         try:
             # First get the photo
             self.rate_limiter.wait_if_needed()
@@ -175,6 +188,8 @@ class DeleteDefunctPhotos:
                 # Filter out preserved photo IDs
                 filtered_photo_ids = [pid for pid in photo_ids if pid not in preserved_ids]
                 skipped_count = len(photo_ids) - len(filtered_photo_ids)
+                self.stats["photos_skipped"] = skipped_count
+
                 
                 if skipped_count > 0:
                     self.logger.info(f"Skipped {skipped_count} photos that are in the preserved list")
@@ -216,20 +231,30 @@ class DeleteDefunctPhotos:
         duration = time.time() - self.stats["start_time"]
         
         print("\n" + "="*50)
-        print(f"PROCESSING STATISTICS {self.org.upper()}")
+        if self.dry_run:
+            print(f"DRY RUN STATISTICS {self.org.upper()}")
+        else:
+            print(f"PROCESSING STATISTICS {self.org.upper()}")
         print("="*50)
-        print(f"Total photos processed: {self.stats['total_photos_processed']}")
+        print(f"Total photos processed: {self.stats['total_photos_processed']} (after filtering preserved IDs)")
         print(f"Photos deleted: {self.stats['photos_deleted']}")
         print(f"Photos expired: {self.stats['photos_expired']}")
+        print(f"Photos skipped: {self.stats['photos_skipped']}")
         print(f"Photos failed: {self.stats['photos_failed']}")
-        print(f"API calls made: {self.stats['api_calls']}")
+        if not self.dry_run:
+            print(f"API calls made: {self.stats['api_calls']}")
         print(f"Total duration: {format_duration(duration)}")
+        if self.dry_run:
+            print("*** DRY RUN - NO ACTUAL CHANGES MADE ***")
         print("="*50)
 
     @benchmark
     def run(self) -> None:
         """Main execution method"""
-        self.logger.info("Starting photo deletion/expiration process")
+        if self.dry_run:
+            self.logger.info("Starting photo deletion/expiration process (DRY RUN)")
+        else:
+            self.logger.info("Starting photo deletion/expiration process")
         self.delete_arcids()
         self.print_statistics()
 
@@ -243,6 +268,7 @@ def main():
     parser.add_argument("--image-arc-id", help="Single image ARC ID to process")
     parser.add_argument("--images-csv", help="CSV file containing image ARC IDs to process")
     parser.add_argument("--hard-delete", action="store_true", help="Hard delete instead of expire")
+    parser.add_argument("--dry-run", action="store_true", help="Simulate operations without making actual changes")
     parser.add_argument("--max-workers", type=int, default=8, help="Maximum number of worker threads")
     parser.add_argument("--batch-size", type=int, default=100, help="Batch size for processing")
     parser.add_argument("--rate-limit", type=int, default=10, help="API rate limit (requests per second)")
@@ -269,6 +295,7 @@ def main():
         image_arc_id=args.image_arc_id,
         images_csv=args.images_csv,
         hard_delete=args.hard_delete,
+        dry_run=args.dry_run,
         max_workers=args.max_workers,
         batch_size=args.batch_size,
         rate_limit=args.rate_limit

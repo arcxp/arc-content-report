@@ -31,7 +31,7 @@ PHOTO_API_SEARCH_URL_PUBLISHED_WIRES = "https://api.{}.arcpublishing.com/photo/a
 PHOTO_API_SINGLE_ITEM_URL = "https://api.{}.arcpublishing.com/photo/api/v2/photos/{}/"
 CAPI_STORY_SEARCH_URL = "https://api.{}.arcpublishing.com/content/v4/search?website={}&published=true&_sourceInclude=type,promo_items.lead_art.url,promo_items.basic.url,content_elements.url,related_content&q={}"
 CAPI_REFERENCES_URL = "https://api.{}.arcpublishing.com/content/v4/referenced-content/image/{}/references"
-
+SITE_SERVICE_WEBSITES_URL = "https://api.{}.arcpublishing.com/site/v3/website/"
 
 @dataclass
 class ReportItem:
@@ -60,7 +60,6 @@ class CombinedPhotoAnalysis:
         end_date: int = 0,
         offset: int = 0,
         source: str = "",
-        website_list: List[str] = None,
         max_workers: int = 8,
         batch_size: int = 100,
         rate_limit: int = 10,
@@ -74,7 +73,6 @@ class CombinedPhotoAnalysis:
         self.offset_scriptarg = offset
         self.image_arc_id = image_arc_id
         self.source = source
-        self.website_list = website_list or []
         self.pc_published_wires = pc_published_wires
         self.images_list = []
         self.images_preserved = []
@@ -104,6 +102,9 @@ class CombinedPhotoAnalysis:
 
         self.db_path = get_db_path(db_name)
         self.logger.info(f"Lightbox database path: {self.db_path}")
+        
+        # Get website list from site service
+        self.website_list = self.get_website_list_from_site_service()
 
     @benchmark
     def query_single_photo(self, arcid: str) -> None:
@@ -319,6 +320,61 @@ class CombinedPhotoAnalysis:
         except sqlite3.Error as e:
             self.logger.error(f"Database error checking lightbox for photo {photo_id}: {e}")
             return None
+
+    def _get_website_list_from_site_service(self) -> List[str]:
+        """Query the site service and return a list of website IDs"""
+        try:
+            res = requests.get(
+                SITE_SERVICE_WEBSITES_URL.format(self.org),
+                headers=self.arc_auth_header,
+                timeout=30
+            )
+            self.stats["api_calls"] += 1
+            
+            if res.ok:
+                result = res.json()
+                # Use JMESPath to extract _id values from the response
+                website_ids = search("[*]._id", result)
+                
+                if website_ids:
+                    self.logger.info(f"Retrieved {len(website_ids)} websites from site service")
+                    return website_ids
+                else:
+                    self.logger.warning("No website IDs found in site service response")
+                    return []
+            else:
+                self.logger.error(f"Failed to retrieve websites from site service: {res.status_code} - {res.text}")
+                return []
+        except Exception as e:
+            self.logger.error(f"Error querying site service: {str(e)}")
+            return []
+
+    def get_website_list_from_site_service(self) -> str:
+        """Query the site service and return a comma-delimited list of quoted website IDs"""
+        website_ids = []
+        res = requests.get(
+            SITE_SERVICE_WEBSITES_URL.format(self.org),
+            headers=self.arc_auth_header,
+            timeout=30
+        )
+        self.stats["api_calls"] += 1
+        if res.ok:
+            result = res.json()
+            # Use JMESPath to extract _id values from the response
+            website_ids = search("[*]._id", result)
+
+            if website_ids:
+                self.logger.info(f"Retrieved {len(website_ids)} websites from site service")
+            else:
+                self.logger.warning("No website IDs found in site service response")
+        else:
+            self.logger.error(f"Failed to retrieve websites from site service: {res.status_code} - {res.text}")
+
+        if website_ids:
+            # Create comma-delimited list of quoted items
+            quoted_website_ids = [f'"{website_id}"' for website_id in website_ids]
+            return [",".join(quoted_website_ids)]
+        return website_ids
 
     @benchmark
     def process_photos_analysis(self) -> None:
@@ -560,13 +616,7 @@ def main():
         action="store_true",
         help="query only published wires photos (cannot be used with --pc-source-id)",
     )
-    parser.add_argument(
-        "--websites-list",
-        dest="website_list",
-        help="websites to be checked for stories where the image may be used. item contains a comma delimited list",
-        action="append",
-        required=True,
-    )
+
     parser.add_argument(
         "--max-workers",
         dest="max_workers",
@@ -638,7 +688,6 @@ def main():
             end_date=args.end_date,
             offset=args.offset,
             source=args.pc_source_id,
-            website_list=args.website_list,
             max_workers=args.max_workers,
             batch_size=args.batch_size,
             rate_limit=args.rate_limit,

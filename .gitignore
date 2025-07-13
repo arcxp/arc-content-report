@@ -5,6 +5,7 @@
 logs/
 spreadsheets/
 databases/
+arcxp/
 *.log
 *.csv
 *.db

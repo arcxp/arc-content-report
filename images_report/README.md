@@ -30,6 +30,31 @@ This repository contains a comprehensive suite of scripts to identify and manage
 
 This module ensures safe, efficient cleanup of unused photos while preserving all actively used content.
 
+## 📁 Project Structure
+
+```
+arc-content-report/
+├── requirements.txt                     # Dependencies
+├── config.env                           # Template for environment variables       
+├── .env                                 # Environment variables       
+├── utils.py                             # Utility functions and logging
+└── README.md                            # Project ReadMe                  
+└── images_report/                       # Images Report Project
+│   └── __init__.py
+│   └── README.md                        # This file
+│   └── create_lightbox_cache.py         # Lightbox cache creation
+│   └── published_photo_analysis.py      # Photo analysis script
+│   └── delete_or_expire_photos.py       # Photo deletion/expiration
+│   └── parallel_processor.py            # Parallel processing engine
+│   └── run_lightbox_cache.sh            # Bash script to run lightbox cache
+│   └── run_published_photo_analysis.sh  # Bash script to run photo analysis
+│   └── run_delete_or_expire_photos.sh   # Bash script to run photo deletion
+├── tests/                               # Unit tests
+├── logs/                                # Logs                   
+├── spreadsheets/                        # Output CSVs
+└── databases/                           # Databases
+```
+
 ## 🏗️ Architecture
 
 ```mermaid
@@ -61,31 +86,30 @@ graph TD
 
 ### Core Python Modules
 
+- `create_lightbox_cache.py` - Creates a cache of lightbox data for photo analysis
 - `published_photo_analysis.py` - Analyzes published photos to identify candidates for deletion
 - `delete_or_expire_photos.py` - Deletes or expires photos from Photo Center
-- `create_lightbox_cache.py` - Creates a cache of lightbox data for photo analysis
 
 ### Shell Scripts
 
+- `run_lightbox_cache.sh` - Runs the lightbox cache creation script
 - `run_published_photo_analysis.sh` - Runs the photo analysis script
 - `run_delete_or_expire_photos.sh` - Runs the photo deletion/expiration script
-- `run_lightbox_cache.sh` - Runs the lightbox cache creation script
 
 ## Setup
 
-1. **Environment Variables**: Create a `.env` file in the project root with your API credentials:
+1. **Environment Variables**: Create a `.env` file in the project root with your API credentials (These values can be overridden on the command line):
    ```
    ORG_ID=your_organization
    BEARER_TOKEN=your_bearer_token
    ENVIRONMENT=sandbox_or_production
    ```
+These variables are used to configure the SQLlite databases:
 
-2. **Dependencies**: Install the required dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
+- `LIGHTBOX_CACHE_DB` - Database name for lightbox cache in production
+- `LIGHTBOX_CACHE_DB_SANDBOX` - Database name for lightbox cache in sandbox environment
 
-3. **Directories**: The module will automatically create the following directories:
+2. **Directories**: The module will automatically create the following directories:
    - `logs/` - For log files
    - `spreadsheets/` - For CSV output files
    - `databases/` - For SQLite cache databases
@@ -114,30 +138,26 @@ Analyze published photos to identify candidates for deletion:
 
 ```bash
 # Basic usage (defaults to sandbox)
-./images_report/run_published_photo_analysis.sh --websites-list=your_website
+./images_report/run_published_photo_analysis.sh 
 
 # With production environment
 ./images_report/run_published_photo_analysis.sh \
-  --websites-list=your_website \
   --environment=production
 
 # With date range
 ./images_report/run_published_photo_analysis.sh \
-  --websites-list=your_website \
   --start-date=2020-01-01 \
   --end-date=2020-01-31
 
 # With specific source filter
 ./images_report/run_published_photo_analysis.sh \
-  --websites-list=your_website \
   --pc-source-id=226329
 
 # With published wires filter
 ./images_report/run_published_photo_analysis.sh \
-  --websites-list=your_website \
   --pc-published-wires
 ```
-**How to Find the Value for --pc-source-id**
+**🔍How to Find the Value for --pc-source-id**
 
 To filter by a specific wires photo distributor (such as Associated Press), use the following steps:
 
@@ -145,9 +165,9 @@ To filter by a specific wires photo distributor (such as Associated Press), use 
 - The URL will update to include a query parameter like `&source=226329`.
 - Use the value after `source=` (e.g., `226329`) as the argument for `--pc-source-id`.
 
-**🔮Note on Power Ups (Custom Embeds) and Photo IDs**
+**🔮Customization for Power Ups (Custom Embeds) using Photo IDs, not included**
 
-Some organizations may use "power ups" (custom embeds) in their content, and these can sometimes reference photo IDs in non-standard ways. This script does **not** currently analyze photo IDs that may be referenced inside custom embeds or power ups in Content API objects.
+Some organizations may use "power ups" (custom embeds) in their content, and these have the potential to reference photo IDs depending on their purpose and how they are built. This script does **not** currently analyze to find photo IDs that may be referenced inside custom embeds or power ups in Content API objects.
 
 If you need to check for photo IDs in power ups, you will need to add a new analysis method to `published_photo_analysis.py`. The general approach would be:
 
@@ -183,12 +203,24 @@ Deletes or expires photos based on analysis results targeting Photo IDs via CSV 
 ./images_report/run_delete_or_expire_photos.sh \
   --images-csv=spreadsheets/photo_ids_to_delete_1234567890-1234567890.csv \
   --hard-delete
+
+# Dry run to simulate operations without making changes
+./images_report/run_delete_or_expire_photos.sh \
+  --images-csv=spreadsheets/photo_ids_to_delete_1234567890-1234567890.csv \
+  --dry-run
+
+# Dry run with hard delete
+./images_report/run_delete_or_expire_photos.sh \
+  --images-csv=spreadsheets/photo_ids_to_delete_1234567890-1234567890.csv \
+  --hard-delete \
+  --dry-run
 ```
 
 **Safety Features**:
 - **Automatic Preserved Photo Filtering**: Automatically skips photos that are in the corresponding preserved CSV file
 - **File Matching**: Looks for `preserved_photo_ids_{suffix}.csv` when processing `photo_ids_to_delete_{suffix}.csv`
 - **Graceful Handling**: Continues normally if preserved file doesn't exist
+- **Dry Run Mode**: Use `--dry-run` to simulate operations without making actual changes to photos
 
 ## Output Files
 
@@ -196,6 +228,31 @@ Deletes or expires photos based on analysis results targeting Photo IDs via CSV 
 
 - `spreadsheets/{org}_preserved_photo_ids_{timestamp}.csv` - Photos that should be preserved
 - `spreadsheets/{org}_photo_ids_to_delete_{timestamp}.csv` - Photos that can be deleted
+
+### CSV File Format
+
+#### Preserved Photos CSV (`{org}_preserved_photo_ids_{timestamp}.csv`)
+Contains photos that should NOT be deleted because they are actively used:
+
+| Column | Description | Example |
+|--------|-------------|---------|
+| `ans_id` | The photo's unique ARC ID | `ABC123DEF456` |
+| `ans_location` | Where the photo is being used | `referenced-content {'story'}` |
+| `source_id` | Photo source/distributor ID (if specified) | `226329` |
+| `website` | Website where the photo is used | `your-website` |
+
+**Location Types:**
+- `referenced-content {'story'}` - Used in published stories
+- `referenced-content {'gallery'}` - Used in published galleries  
+- `gallery` - Used in gallery content
+- `lightbox` - Used in lightboxes
+
+#### Photos to Delete CSV (`{org}_photo_ids_to_delete_{timestamp}.csv`)
+Contains photos that can be safely deleted (single column):
+
+| Column | Description | Example |
+|--------|-------------|---------|
+| `ans_id` | The photo's unique ARC ID | `ABC123DEF456` |
 
 ### CSV File Behavior
 - **Append Mode**: CSV files are created in append mode, not overwrite mode
@@ -210,35 +267,15 @@ Deletes or expires photos based on analysis results targeting Photo IDs via CSV 
 - `logs/{org}_lightbox_cache.log` - Lightbox cache logs
 
 ### Database Files
+Lightbox data is cached in SQLite because there is not a way to return photos in a lightbox by photo id using the API
 
 - `databases/{org}_lightbox_photo_cache.db` - Lightbox cache database, production environment
 - `databases/{org}_lightbox_photo_cache_sandbox.db` - Lightbox cache database, sandbox environment
 
-## Configuration
 
-The module uses the following environment variables (in addition to ORG_ID and BEARER_TOKEN):
+### Example Log Output
 
-- `LIGHTBOX_CACHE_DB` - Database name for lightbox cache in production
-- `LIGHTBOX_CACHE_DB_SANDBOX` - Database name for lightbox cache in sandbox environment
-
-## Performance
-
-The module includes several performance optimizations:
-
-- **Parallel Processing**: Uses ThreadPoolExecutor for concurrent API calls
-- **Rate Limiting**: Built-in rate limiting to avoid overwhelming APIs
-- **Batch Processing**: Processes items in configurable batch sizes
-- **Caching**: Lightbox data is cached in SQLite because there is not a way to return photos in a lightbox by photo id using the API
-
-### Benchmarking
-Each script provides comprehensive statistics:
-- Processing time
-- Memory usage
-- API call counts
-- Success/failure rates
-- Average time per item
-
-### Example Output
+**Photo Analysis:**
 ```
 ==================================================
 PUBLISHED PHOTO ANALYSIS STATISTICS
@@ -257,6 +294,36 @@ Average time per photo: 0.108s
 ==================================================
 ```
 
+**Photo Deletion/Expiration:**
+```
+==================================================
+PROCESSING STATISTICS YOUR_ORG
+==================================================
+Total photos processed: 150 (after filtering preserved IDs)
+Photos deleted: 100
+Photos expired: 0
+Photos skipped: 25
+Photos failed: 0
+API calls made: 150
+Total duration: 0m 15s
+==================================================
+```
+
+**Dry Run Mode:**
+```
+==================================================
+DRY RUN STATISTICS YOUR_ORG
+==================================================
+Total photos processed: 150 (after filtering preserved IDs)
+Photos deleted: 100
+Photos expired: 0
+Photos skipped: 25
+Photos failed: 0
+Total duration: 0m 5s
+*** DRY RUN - NO ACTUAL CHANGES MADE ***
+==================================================
+```
+
 ## Examples
 
 ### Complete Workflow
@@ -269,9 +336,6 @@ Average time per photo: 0.108s
 2. **Analyze Photos**:
    ```bash
    ./images_report/run_published_photo_analysis.sh \
-     --websites-list=your_website \
-     --websites-list=your_2nd_website \
-     --websites-list=your_nth_website \
      --start-date=2020-01-01 \
      --end-date=2020-01-31
    ```
@@ -282,6 +346,12 @@ Average time per photo: 0.108s
 
 4. **Delete Photos** (optional):
    ```bash
+   # Test with dry run first
+   ./images_report/run_delete_or_expire_photos.sh \
+     --images-csv=spreadsheets/{org}_photo_ids_to_delete_{timestamp}.csv \
+     --dry-run
+   
+   # Then run for real
    ./images_report/run_delete_or_expire_photos.sh \
      --images-csv=spreadsheets/{org}_photo_ids_to_delete_{timestamp}.csv
    ```

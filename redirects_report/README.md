@@ -21,21 +21,19 @@ Identifies and validates redirects within Arc XP content, checking HTTP status c
 arc-content-report/
 ├── requirements.txt                     # Dependencies
 ├── config.env                           # Template for environment variables       
-├── .env                                 # Bash script environment variables       
+├── .env                                 # Environment variables       
 ├── daterange_builder.py                 # Date range automation
 ├── utils.py                             # Utility functions and logging
-└── README_PROJECT.md                  
+└── README.md                            # Project ReadMe                  
 └── redirects_report/                    # Redirects Report Project
 │   └── __init__.py
-│   └── README.md
+│   └── README.md                        # This file
 │   └── identify_redirects.py            # Redirects script
 │   └── parallel_processor.py            # Parallel processing engine
 │   └── status_checker.py                # Async HTTP status checking
-│   └── run_script.sh                    # Basch script to run redirects report
+│   └── run_script.sh                    # Bash script to run redirects report
 ├── tests/                               # Unit tests
-│   └── test_daterange_builder.py
 ├── logs/                                # Logs                   
-│   └── redirects.log
 └── spreadsheets/                        # Output CSVs
 ```
 
@@ -96,9 +94,16 @@ bash redirects_report/run_script.sh
 
 ### Environment Variables
 - `ORG_ID`: Organization ID
+- `ENVIRONMENT`: sandbox or production
 - `BEARER_TOKEN`: API token
 - `WEBSITE`: Website identifier
 - `WEBSITE_DOMAIN`: Website domain
+- `DO_404_OR_200`: Status checking
+- `DEFAULT_START_DATE`: Date Filtering
+- `DEFAULT_END_DATE`: Date Filtering
+- `DEFAULT_REDIRECTS_OUTPUT_PREFIX`: CSV Filename prefix
+- `MAX_WORKERS`: Workers configuration
+- `AUTO_OPTIMIZE_WORKERS`: Worker configuration
 
 ### Script calls
 

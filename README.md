@@ -133,7 +133,8 @@ export LOG_LEVEL=DEBUG
 - API call response times
 - Memory usage statistics
 - Worker utilization rates
-
+- Success/failure rates
+- Average time per item
 
 ## 📄 License
 

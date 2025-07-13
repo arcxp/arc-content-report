@@ -117,6 +117,39 @@ bash wires_report/run_script.sh
 
 ## 🔧 Configuration Options
 
+
+### Environment Setup
+
+```bash
+# Copy the template and edit with your credentials
+cp config.env .env
+
+# Edit .env file with your values
+cat > .env 
+
+# Required credentials
+ORG_ID=your-organization-id
+BEARER_TOKEN=your-bearer-token
+WEBSITE=your-website
+
+# Environment configuration
+ENVIRONMENT=sandbox
+
+# Default date range (optional - can be overridden via command line)
+DEFAULT_START_DATE=2024-01-01
+DEFAULT_END_DATE=2024-01-31
+
+# Output configuration
+DEFAULT_WIRES_OUTPUT_PREFIX=wires_analysis
+
+# Query configuration (optional)
+Q_EXTRA_FILTERS="AND source.name:Associated Press"
+Q_EXTRA_FIELDS=distributor.name,owner.name
+
+# Performance configuration
+MAX_WORKERS=8
+AUTO_OPTIMIZE_WORKERS=1
+```
 ### Command Line Arguments
 
 #### Required
@@ -133,15 +166,6 @@ bash wires_report/run_script.sh
 - `--report-folder`: Output directory (default: spreadsheets)
 - `--output-prefix`: Prefix string for output filename (default: none)
 
-### Environment Variables
-- `ORG_ID`: Organization ID
-- `BEARER_TOKEN`: API token
-- `WEBSITE`: Website identifier
-- `ENVIRONMENT`: Environment (sandbox/production)
-- `DEFAULT_START_DATE`: Default start date
-- `DEFAULT_END_DATE`: Default end date
-- `DEFAULT_OUTPUT_PREFIX`: Default output prefix
-- `MAX_WORKERS`: Maximum parallel workers
 
 ### Script calls
 
@@ -154,25 +178,6 @@ bash wires_report/run_script.sh
 
 # Bash call, alternative syntax, overriding some optional arguments
 ./wires_report/run_script.sh --start-date 2020-09-01 --end-date 2020-09-30 --q-extra-filters "AND source.name:Washington Post" --output-prefix wires_report
-```
-
-### Environment Setup
-
-```bash
-# Copy the template and edit with your credentials
-cp config.env .env
-
-# Edit .env file with your values
-cat > .env << EOF
-ORG_ID=your-organization-id
-BEARER_TOKEN=your-bearer-token
-WEBSITE=your-website
-ENVIRONMENT=sandbox
-DEFAULT_START_DATE=2024-01-01
-DEFAULT_END_DATE=2024-01-31
-DEFAULT_OUTPUT_PREFIX=wires_analysis
-MAX_WORKERS=5
-EOF
 ```
 
 ### Filter Examples
