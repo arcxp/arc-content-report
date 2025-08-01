@@ -81,8 +81,7 @@ class RedirectsParallelProcessor:
                         "created_date": row["created_date"],
                         "website": self.website,
                         "environment": self.env,
-                        "check_404_or_200": "",
-                        "check_ai_analysis": ""
+                        "check_404_or_200": ""
                     }
                     all_items.append(item)
                 

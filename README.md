@@ -1,6 +1,8 @@
 # arc-content-report
 
-A suite of Python tools for analyzing and managing Arc XP content across multiple domains. This repository provides automated solutions for identifying redirects, analyzing unpublished wires content, and managing unused published photos in Photo Center. All modules feature parallel processing, rate limiting, and comprehensive logging for content analysis workflows.
+A suite of Python tools for analyzing and managing Arc XP content. This repository provides script templates for identifying redirects, analyzing unpublished wires content, and managing unused published photos in Photo Center. All modules feature parallel processing, rate limiting, and comprehensive logging for content analysis workflows.
+
+You are encouraged to clone the repository, run the script templates in a local development environment, and customize the script templates with customizations that make them conform to your organizations unique content and business rules.
 
 ## 📁 **Repository Structure**
 
@@ -12,7 +14,7 @@ A suite of Python tools for analyzing and managing Arc XP content across multipl
   - `parallel_processor.py` - Optimized parallel processing engine with dynamic worker scaling
   - `status_checker.py` - Async HTTP status checking (200/404 validation) for redirect URLs
 
-- **`wires_report/`** - Unpublished wires content analysis and cleanup
+- **`wires_report/`** - Unpublished story wires content analysis and cleanup
   - `identify_wires.py` - Identifies unpublished wires content for potential deletion
   - `parallel_processor.py` - Parallel processing engine with ElasticSearch query optimization
 

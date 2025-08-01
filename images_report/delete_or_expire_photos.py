@@ -36,7 +36,7 @@ class DeleteDefunctPhotos:
     ):
         self.arc_auth_header = arc_auth_header
         self.org = org
-        self.org_for_filename = org.replace('sandbox.','')
+        self.org_for_filename = org.replace("sandbox.","")
         self.image_arc_id = image_arc_id
         self.images_csv = images_csv
         self.hard_delete = bool(hard_delete)
@@ -52,7 +52,7 @@ class DeleteDefunctPhotos:
             "photos_deleted": 0,
             "photos_expired": 0,
             "photos_failed": 0,
-            'photos_skipped': 0,
+            "photos_skipped": 0,
             "api_calls": 0,
             "start_time": time.time()
         }
