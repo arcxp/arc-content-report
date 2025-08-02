@@ -1,7 +1,6 @@
 import argparse
 import csv
 import os
-import pprint
 import time
 from typing import List, Dict, Any, Optional
 
@@ -11,13 +10,10 @@ from utils import (
     setup_logging,
     benchmark,
     RateLimiter,
-    get_csv_path,
-    format_duration,
-    PerformanceBenchmark
 )
-from .parallel_processor import RedirectsParallelProcessor
+from .delete_redirects_parallel_processor import RedirectsDeleteParallelProcessor
 
-DRAFT_API_URL = "https://api.sandbox.cetest.arcpublishing.com/draft/v1/redirect/{}/{}"
+DRAFT_API_URL = "https://api.{}.arcpublishing.com/draft/v1/redirect/{}/{}"
 
 
 class DeleteRedirects:
@@ -58,7 +54,7 @@ class DeleteRedirects:
         """Delete a single redirect by its canonical URL"""
         if self.dry_run:
             self.stats["redirects_deleted"] += 1
-            self.logger.info(f"[DRY RUN] Would delete redirect {redirect_url}")
+            self.logger.info(f"[DRY RUN] Would delete {redirect_website} redirect {redirect_url}")
             return {"redirect_url": redirect_url, "website": redirect_website, "status": "deleted", "response": 200}
 
         try:
@@ -72,16 +68,41 @@ class DeleteRedirects:
 
             if res.ok:
                 self.stats["redirects_deleted"] += 1
-                self.logger.info(f"Successfully deleted redirect {redirect_url}")
+                self.logger.info(f"Successfully deleted {redirect_website} redirect {redirect_url}")
                 return {"redirect_url": redirect_url, "website": redirect_website, "status": "deleted", "response": res.status_code}
             else:
                 self.stats["redirects_failed"] += 1
-                self.logger.error(f"Failed to delete redirect {redirect_url}: {res.status_code} - {res.text}")
+                self.logger.error(f"Failed to delete {redirect_website} redirect {redirect_url}: {res.status_code} - {res.text}")
                 return {"redirect_url": redirect_url, "website": redirect_website, "status": "failed", "response": res.status_code}
         except Exception as e:
             self.stats["redirects_failed"] += 1
-            self.logger.error(f"Exception deleting redirect {redirect_url}: {str(e)}")
+            self.logger.error(f"Exception deleting {redirect_website} redirect {redirect_url}: {str(e)}")
             return {"redirect_url": redirect_url, "redirect_website": redirect_website, "status": "error", "error": str(e)}
+
+    def delete_redirects_parallel(self, redirect_items: List[tuple]) -> List[Dict[str, Any]]:
+        """Delete multiple redirects in parallel using the parallel processor"""
+        # Initialize parallel processor
+        parallel_processor = RedirectsDeleteParallelProcessor(
+            arc_auth_header=self.arc_auth_header,
+            org=self.org,
+            max_workers=self.max_workers,
+            rate_limit=self.rate_limiter.max_requests_per_second,
+            dry_run=self.dry_run
+        )
+        
+        # Process redirects in parallel
+        results = parallel_processor.process_redirects_parallel(
+            delete_func=self.delete_single_redirect,
+            redirect_items=redirect_items,
+            chunk_size=self.batch_size,
+            description="Deleting redirects"
+        )
+        
+        # Update statistics from parallel processor
+        parallel_stats = parallel_processor.get_statistics()
+        self.stats.update(parallel_stats)
+        
+        return results
 
     @benchmark
     def delete_redirects(self) -> None:
@@ -103,7 +124,21 @@ class DeleteRedirects:
                     self.logger.info(
                         f"Loaded {len(redirect_urls)} redirects from CSV for deletion")
 
-                    #TODO delete redirects in parallel, passing to the DRAFT_API_URL endpoint
+                    # Delete redirects in parallel using the parallel processor
+                    results = self.delete_redirects_parallel(redirect_urls)
+                    
+                    # Print final statistics
+                    successful_deletions = sum(1 for r in results if r.get("status") == "deleted")
+                    failed_deletions = len(results) - successful_deletions
+                    processing_time = time.time() - self.stats["start_time"]
+                    
+                    print(f"\n📊 Deletion Statistics:")
+                    print(f"  • Total processed: {self.stats['total_redirects_processed']}")
+                    print(f"  • Successfully deleted: {successful_deletions}")
+                    print(f"  • Failed deletions: {failed_deletions}")
+                    print(f"  • Total API calls: {self.stats['api_calls']}")
+                    print(f"  • Processing time: {processing_time:.2f} seconds")
+                    print(f"  • Success rate: {(successful_deletions / len(results) * 100):.1f}%" if results else "  • Success rate: 0.0%")
 
             else:
                 self.logger.error(f"Path {self.redirects_csv} is not to a valid file")
@@ -112,7 +147,16 @@ class DeleteRedirects:
             self.stats["total_redirects_processed"] = 1
             result = self.delete_single_redirect(self.redirect_url, self.redirect_website)
             if result:
-                self.logger.info(f"Single redirect processing complete: {result['status']}")
+                processing_time = time.time() - self.stats["start_time"]
+                
+                print(f"\n📊 Single Redirect Deletion Statistics:")
+                print(f"  • Status: {result['status']}")
+                print(f"  • Processing time: {processing_time:.2f} seconds")
+                print(f"  • API calls: {self.stats['api_calls']}")
+                if result.get('response'):
+                    print(f"  • Response code: {result['response']}")
+                if result.get('error'):
+                    print(f"  • Error: {result['error']}")
         else:
             self.logger.error("No redirect URL or CSV file provided")
 

@@ -367,7 +367,7 @@ class TestWiresReportCLI:
             main()
         
         # Verify logging was set up
-        mock_setup_logging.assert_called_once_with('wires')
+        mock_setup_logging.assert_called_once_with('test-org_wires')
     
     def test_help_output(self):
         """Test that help output is generated correctly."""

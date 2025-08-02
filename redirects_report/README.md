@@ -8,6 +8,7 @@ Identifies and validates redirects within Arc XP content, checking HTTP status c
 - **Redirect Discovery**: Identifies redirects within specified date ranges
 - **HTTP Status Validation**: Checks redirect URLs for 200, 301, and 404 responses
 - **Flexible Date Filtering**: Supports both date and datetime formats
+- **Redirect Deletion**: Seperate script to support deleting redirects
 - **Environment Support**: Works with both sandbox and production environments
 
 ### Output & Analysis
@@ -28,8 +29,10 @@ arc-content-report/
 └── redirects_report/                    # Redirects Report Project
 │   └── __init__.py
 │   └── README.md                        # This file
-│   └── identify_redirects.py            # Redirects script
-│   └── parallel_processor.py            # Parallel processing engine
+│   └── identify_redirects.py            # Redirects script to report on redirects in date range
+│   └── identify_redirects_parallel_processor.py  # Parallel processing engine for redirect search
+│   └── delete_redirects.py              # Redirects script to delete redirects
+│   └── delete_redirects_parallel_processor.py  # Parallel processing engine for redirect deletions
 │   └── status_checker.py                # Async HTTP status checking
 │   └── run_script.sh                    # Bash script to run redirects report
 ├── tests/                               # Unit tests
@@ -42,7 +45,7 @@ arc-content-report/
 ```mermaid
 graph TD
     A[User Input] --> B[DateRangeBuilder]
-    B --> C[RedirectsParallelProcessor]
+    B --> C[RedirectsSearchParallelProcessor]
     C --> D[AsyncStatusChecker]
     D --> E[CSV Export]
     
@@ -73,17 +76,68 @@ bash redirects_report/run_script.sh
 ./redirects_report/run_script.sh
 ```
 
+**Run delete redirects as a python module from the arc-content-report/ directory**:
+
+```bash
+# Delete from CSV file
+python -m redirects_report.delete_redirects.py \
+  --org your-org-id \
+  --environment sandbox \
+  --bearer-token your-token \
+  --redirects-csv "path-to-csv" \
+  --dry-run  
+  
+# Delete single redirect
+python -m redirects_report.delete_redirects.py \
+    --org your-org \
+    --environment sandbox \
+    --bearer-token your-token \
+    --redirect-url "/redirect/url/" \
+    --redirect-website "website-name" \
+    --dry-run  
+```
+
+Requires you to first complie a seperate CSV to feed into this script.  The CSV file generated out of the redirect report will not work as is, since that CSV will contain all redirects discovered including ones that you will want to maintain.  You should use the report CSV as a starting point and filter out of it only the redirects you want to delete. 
+
+The CSV file to send to the delete redirects script must contain two columns (header not required):
+```csv
+redirect_url,website
+/path/to/redirect1,website-name
+/path/to/redirect2,website-name
+```
+
 ## 🔧 Configuration Options
+
+
+| Parameter | Default  | Description                                                                                                                       |
+|-----------|----------|-----------------------------------------------------------------------------------------------------------------------------------|
+| `max_workers` | 8        | Number of parallel threads                                                                                                        |
+| `batch_size` | 100      | Items processed per batch                                                                                                         |
+| `rate_limit` | 4<br/>10 | in delete script: DRAFT API requests per second<br/>                           in reports script: Content API requests per second |
+| `dry_run` | False    | Test mode without actual deletion                                                                                                 |
 
 ### Command Line Arguments
 
-#### Required
+#### identify_redirects.py Required
 - `--org`: Arc XP organization ID
 - `--bearer-token`: API authentication token
 - `--website`: Website identifier
 - `--website-domain`: Full website domain URL
 
-#### Optional
+#### delete_redirects.py Required
+- `--org`: Arc XP organization ID
+- `--bearer-token`: API authentication token
+- `--redirect-url`: Redirect URL
+- `--redirect-website`: Arc XP Website associated with redirect's target content
+- `--redirects-csv`: Path to csv containing list of redirects to delete
+
+Must provide either `--redirect-url` and `--redirect-website` or `--redirects-csv`
+
+The file passed to `--redirects-csv` must contain two columns
+- redirect url: The redirect url.  This is the value in the canonical url column returned from the redirect report.
+- website: the Arc XP site id holding the target content that the redirect delivers.
+
+#### Optional 
 - `--environment`: Environment (production/sandbox, default: production)
 - `--start-date`: Start date for filtering (YYYY-MM-DD or YYYY-MM-DDTHH:MM:SS)
 - `--end-date`: End date for filtering (YYYY-MM-DD or YYYY-MM-DDTHH:MM:SS)
@@ -108,14 +162,18 @@ bash redirects_report/run_script.sh
 ### Script calls
 
 ```bash
-# Python call
+# Redirects Report Python call
 python -m redirects_report.identify_redirects  --org org --website website --bearer-token token --website-domain https://domain 
 
-# Bash call, relying on .env file for arguments passed to python call
+# Redirects Report Bash call, relying on .env file for arguments passed to python call
 bash redirects_report/run_script.sh
 
-# Bash call, alternative syntax, overriding some optional arguments
+# Redirects Report Bash call, alternative syntax, overriding some optional arguments
 ./redirects_report/run_script.sh --start-date 2020-09-01 --end-date 2020-09-30 --do-404-or-200 1 --output-prefix redirects_report
+
+# Delete Redirects Python call
+python -m redirects_report.delete_redirects --org org --environment sandbox  --redirects-csv spreadsheets/cetest_redirects_sandbox_todelete.csv --bearer-token token --dry-run
+
 ```
 
 ## 🛠️ Troubleshooting
@@ -134,9 +192,9 @@ Error: MemoryError
 Solution: Process smaller date ranges or reduce batch sizes in status_checker.py
 ```
 
-## 📊 Output Format
+## 📊 Report Output Format
 
-The script generates CSV files with the following columns:
+The report script generates CSV files with the following columns:
 - `identifier`: Arc XP content ID
 - `canonical_url`: URL that will cause an HTTP redirect response, the source URLL
 - `redirect_url`: The Arc XP object URL or external site URL which will be delivered, the target URL

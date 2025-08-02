@@ -2,10 +2,8 @@
 CLI argument tests for redirects_report module
 """
 import pytest
-import argparse
 from unittest.mock import patch, MagicMock
 import sys
-from io import StringIO
 
 from redirects_report.identify_redirects import main, RedirectsReporter
 
@@ -399,7 +397,7 @@ class TestRedirectsReportCLI:
             main()
         
         # Verify logging was set up
-        mock_setup_logging.assert_called_once_with('redirects')
+        mock_setup_logging.assert_called_once_with('test-org_redirects')
     
     def test_help_output(self):
         """Test that help output is generated correctly."""

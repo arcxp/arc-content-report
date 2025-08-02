@@ -8,7 +8,7 @@ from typing import List, Dict, Any, Optional
 
 import utils
 import daterange_builder
-from .parallel_processor import RedirectsParallelProcessor, optimize_worker_count
+from .identify_redirects_parallel_processor import RedirectsSearchParallelProcessor, optimize_worker_count
 from .status_checker import check_redirect_statuses_sync
 
 logger = logging.getLogger(__name__)
@@ -45,7 +45,7 @@ class RedirectsReporter:
         
         # Initialize components
         self.date_builder = daterange_builder.DateRangeBuilder(bearer_token, org, website, environment)
-        self.parallel_processor = RedirectsParallelProcessor(
+        self.parallel_processor = RedirectsSearchParallelProcessor(
             bearer_token, org, website, environment, max_workers
         )
     

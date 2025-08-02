@@ -1,6 +1,6 @@
 """
-Parallel Processor for Arc XP Org Redirects Report
-Handles concurrent API calls and consolidated CSV output
+Parallel Processor for Arc XP Redirects Search and Analysis
+Handles concurrent API calls for fetching redirects by date ranges and consolidated CSV output
 """
 import logging
 import pandas as pd
@@ -14,8 +14,8 @@ from ratelimit import limits, sleep_and_retry
 
 logger = logging.getLogger(__name__)
 
-class RedirectsParallelProcessor:
-    """Handles parallel processing of date ranges for API calls."""
+class RedirectsSearchParallelProcessor:
+    """Handles parallel processing of date ranges for redirect search API calls."""
     
     def __init__(self, bearer_token: str, org: str, website: str, environment: str = "production", max_workers: int = 5):
         self.bearer_token = bearer_token
@@ -220,7 +220,7 @@ def optimize_worker_count(date_ranges: List[Tuple[str, str]], bearer_token: str,
     best_performance = 0
     
     for workers in [1, 3, 5, 8, 10]:
-        processor = RedirectsParallelProcessor(bearer_token, org, website, environment, workers)
+        processor = RedirectsSearchParallelProcessor(bearer_token, org, website, environment, workers)
         metrics = processor.benchmark_performance(test_ranges)
         
         if metrics["items_per_second"] > best_performance:

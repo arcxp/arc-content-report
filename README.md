@@ -10,8 +10,10 @@ You are encouraged to clone the repository, run the script templates in a local 
 
 #### Content Analysis Modules
 - **`redirects_report/`** - Redirects analysis and HTTP status validation
+  - `delete_redirects.py` - Deletes redirects
+  - `delete_redirects_parallel_processor.py` - Optimized parallel processing engine with dynamic worker scaling
   - `identify_redirects.py` - Identifies redirects within date ranges and validates HTTP status codes
-  - `parallel_processor.py` - Optimized parallel processing engine with dynamic worker scaling
+  - `identify_redirects_parallel_processor.py` - Optimized parallel processing engine with dynamic worker scaling
   - `status_checker.py` - Async HTTP status checking (200/404 validation) for redirect URLs
 
 - **`wires_report/`** - Unpublished story wires content analysis and cleanup
