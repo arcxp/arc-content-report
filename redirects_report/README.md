@@ -57,8 +57,11 @@ graph TD
     I --> J[Batch Processing]
 ```
 
-## 🚀 Quick Start
-**Run redirects report script as a python module from the arc-content-report/ directory**:
+## 🚀 Usage
+
+### List Redirects using a date range
+
+Run redirects report script as a python module from the `arc-content-report/` directory:
 
 ```bash
 python -m redirects_report.identify_redirects.py \
@@ -70,13 +73,96 @@ python -m redirects_report.identify_redirects.py \
   --start-date 2024-01-01 \
   --end-date 2024-01-31 
 ```
-**Run redirects report script with bash script:**
+Or, run redirects report script with bash script:
 ```bash
 bash redirects_report/run_script.sh
 ./redirects_report/run_script.sh
 ```
 
-**Run delete redirects as a python module from the arc-content-report/ directory**:
+---
+
+### ⚠️ **IMPORTANT: Redirects Engagement Analysis**
+
+Before proceeding with redirect deletion, you should analyze CDN logs to determine which redirects are actively driving engagement.
+
+### 🔍 **Engagement Analysis Requirements**
+
+The redirect identification script finds redirects that exist, but **engagement analysis is essential** to determine which redirects are actually being used by visitors. Before running any deletion scripts, you need to:
+
+1. **Access CDN Logs**:
+   - Obtain access to CDN logs delivered to your external analytics resource
+   - Ensure logs contain sufficient historical data for meaningful analysis
+   - Verify logs include redirect URL patterns and click-through data
+
+2. **Query CDN Logs for Engagement**:
+   - **Identify Active Redirects**: Query logs (e.g., Splunk) to find redirects that have been clicked on
+   - **Analyze Traffic Patterns**: Look for redirects with recent or consistent traffic
+   - **Historical Analysis**: Check engagement over the time period your logs cover
+   - **Traffic Volume**: Determine which redirects drive significant traffic
+
+3. **Compile Engagement Results**:
+   - **Create Engagement Report**: Document which redirects have traffic and which don't
+   - **Traffic Thresholds**: Establish criteria for what constitutes "active" usage
+   - **Risk Assessment**: Identify high-traffic redirects that should never be deleted
+   - **Candidate Selection**: Mark redirects with zero or minimal traffic for potential deletion
+
+4. **Decision Making Process**:
+   - **Review Engagement Data**: Cross-reference redirect list with engagement analysis
+   - **Stakeholder Approval**: Get approval from content managers and analytics teams
+   - **Gradual Approach**: Consider deleting redirects in phases, starting with lowest engagement
+
+### 🎯 **Recommended Analysis Workflow**
+
+```bash
+# 1. Run redirect identification to generate candidate list
+python -m redirects_report.identify_redirects.py \
+  --org your-org-id \
+  --bearer-token your-token \
+  --website your-website \
+  --website-domain https://www.your-domain.com \
+  --start-date 2024-01-01 \
+  --end-date 2024-01-31
+
+# 2. Analyze CDN logs for engagement (EXTERNAL PROCESS)
+# - Query your CDN analytics platform
+# - Identify redirects with traffic/engagement
+# - Compile list of redirects with zero/minimal traffic
+
+# 3. Create filtered deletion list
+# - Remove redirects with active engagement from deletion candidates
+# - Keep only redirects with confirmed zero/minimal traffic
+# - Save as new CSV for deletion script
+
+# 4. Only then proceed with deletion (if approved)
+python -m redirects_report.delete_redirects.py \
+  --org your-org-id \
+  --environment sandbox \
+  --bearer-token your-token \
+  --redirects-csv "filtered_redirects_to_delete.csv" \
+  --dry-run  # Always test first!
+```
+
+### 📋 **Engagement Analysis Decision Points**
+
+- ✅ **Proceed with Deletion**: Only redirects with confirmed zero/minimal traffic
+- ⚠️ **Modify List**: Remove redirects with any significant engagement
+- ❌ **Abort Process**: If engagement analysis reveals high usage of redirects
+
+### 🔧 **CDN Log Analysis Tips**
+
+- **Time Period**: Analyze logs covering at least 6-12 months for meaningful patterns
+- **Traffic Thresholds**: Consider redirects with <10 clicks/month as potential candidates
+- **Seasonal Patterns**: Account for seasonal traffic variations in your analysis
+- **Error Patterns**: Distinguish between 404 errors and actual redirect usage
+- **Referrer Analysis**: Check if redirects are being accessed from external sources
+
+---
+
+### Delete Redirects
+
+**Only proceed after completing the engagement analysis steps above.**
+
+Run delete redirects as a python module from the `arc-content-report/` directory:
 
 ```bash
 # Delete from CSV file
@@ -97,9 +183,10 @@ python -m redirects_report.delete_redirects.py \
     --dry-run  
 ```
 
-Requires you to first complie a seperate CSV to feed into this script.  The CSV file generated out of the redirect report will not work as is, since that CSV will contain all redirects discovered including ones that you will want to maintain.  You should use the report CSV as a starting point and filter out of it only the redirects you want to delete. 
+You must first compile a new CSV to feed into this script.  The CSV file generated out of the redirect report will not work as is, since that CSV will contain all redirects discovered including ones that you will want to maintain.  You should use the report CSV as a starting point and filter out of it only the redirects you want to delete. 
 
 The CSV file to send to the delete redirects script must contain two columns (header not required):
+
 ```csv
 redirect_url,website
 /path/to/redirect1,website-name

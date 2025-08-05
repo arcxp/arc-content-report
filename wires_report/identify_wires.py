@@ -8,7 +8,7 @@ from typing import List, Dict, Any, Optional
 
 import utils
 import daterange_builder
-from .parallel_processor import WiresParallelProcessor, optimize_worker_count
+from .identify_wires_parallel_processor import WiresParallelProcessor, optimize_worker_count
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +39,7 @@ class WiresReporter:
         self.auto_optimize_workers = auto_optimize_workers
         self.q_extra_fields = q_extra_fields or []
         # Setup logging
-        utils.setup_logging('wires')
+        utils.setup_logging(f"{self.org}_wires")
         # Initialize components
         self.date_builder = daterange_builder.DateRangeBuilder(bearer_token, org, website, environment)
         self.parallel_processor = WiresParallelProcessor(

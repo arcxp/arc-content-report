@@ -41,7 +41,7 @@ class RedirectsReporter:
         self.auto_optimize_workers = auto_optimize_workers
 
         # Setup logging
-        utils.setup_logging('redirects')
+        utils.setup_logging(f"{self.org}_redirects")
         
         # Initialize components
         self.date_builder = daterange_builder.DateRangeBuilder(bearer_token, org, website, environment)

@@ -45,7 +45,7 @@ arc-content-report/
 │   └── create_lightbox_cache.py         # Lightbox cache creation
 │   └── published_photo_analysis.py      # Photo analysis script
 │   └── delete_or_expire_photos.py       # Photo deletion/expiration
-│   └── parallel_processor.py            # Parallel processing engine
+│   └── images_parallel_processor.py     # Parallel processing engine for images
 │   └── run_lightbox_cache.sh            # Bash script to run lightbox cache
 │   └── run_published_photo_analysis.sh  # Bash script to run photo analysis
 │   └── run_delete_or_expire_photos.sh   # Bash script to run photo deletion
@@ -157,7 +157,7 @@ Analyze published photos to identify candidates for deletion:
 ./images_report/run_published_photo_analysis.sh \
   --pc-published-wires
 ```
-**🔍How to Find the Value for --pc-source-id**
+ **🔍 How to Find the Value for --pc-source-id**
 
 To filter by a specific wires photo distributor (such as Associated Press), use the following steps:
 
@@ -165,7 +165,7 @@ To filter by a specific wires photo distributor (such as Associated Press), use 
 - The URL will update to include a query parameter like `&source=226329`.
 - Use the value after `source=` (e.g., `226329`) as the argument for `--pc-source-id`.
 
-**🔮Customization for Power Ups (Custom Embeds) using Photo IDs, not included**
+**⚠️🔮 Customization for Power Ups (Custom Embeds) using Photo IDs, not included**
 
 Some organizations may use "power ups" (custom embeds) in their content, and these have the potential to reference photo IDs depending on their purpose and how they are built. This script does **not** currently analyze to find photo IDs that may be referenced inside custom embeds or power ups in Content API objects.
 
@@ -179,9 +179,70 @@ If you need to check for photo IDs in power ups, you will need to add a new anal
 
 This is an _**advanced customization**_ and is not included by default. If your implementation requires this, you can use the above plan as a starting point for extending the analysis.
 
+---
 
+
+### ⚠️ **IMPORTANT: Verification Required Before Deletion**
+
+**Before proceeding with photo deletion, you should strongly consider performing external verification of the identified photos.**
+
+### 🔍 **Verification Checklist**
+
+The analysis script generates a list of photos that appear to be unused, but **human verification is essential** to ensure accuracy. Before running any deletion scripts, please:
+
+1. **Review the Analysis Results**:
+   - Examine `spreadsheets/{org}_photo_ids_to_delete_{timestamp}.csv`
+   - Check `spreadsheets/{org}_preserved_photo_ids_{timestamp}.csv` to understand what was preserved and why
+
+2. **Sample Verification**:
+   - **Random Sample**: Select 10-20 random photo IDs from the deletion list
+   - **Manual Check**: Visit each photo in Photo Center UI to verify it's truly unused
+   - **Cross-Reference**: Check if photos appear in any published content not captured by the analysis
+
+3. **Business Context Review**:
+   - **Editorial Value**: Consider if photos have historical or editorial significance
+   - **Future Use**: Evaluate if photos might be needed for future stories or archives
+   - **Legal Considerations**: Ensure no photos are subject to licensing restrictions
+
+4. **Risk Assessment**:
+   - **Start Small**: Consider testing with a small subset (10-50 photos) first
+   - **Irreversible Action**: Photo deletions are permanent and cannot be undone
+   - **Stakeholder Approval**: Get approval from appropriate content managers or editors
+
+### 🎯 **Recommended Verification Process**
+
+```bash
+# 1. Run analysis to generate candidate list
+./images_report/run_published_photo_analysis.sh \
+  --start-date=2020-01-01 \
+  --end-date=2020-01-31
+
+# 2. Review generated CSV files
+# - Check preserved_photo_ids file to understand what was kept
+# - Examine photo_ids_to_delete file for candidates
+
+# 3. Perform manual verification (STRONGLY RECOMMENDED)
+# - Sample photos from the deletion list
+# - Verify they are truly unused in Photo Center UI
+# - Get stakeholder approval
+
+# 4. Only then proceed with deletion (if approved)
+./images_report/run_delete_or_expire_photos.sh \
+  --images-csv=spreadsheets/{org}_photo_ids_to_delete_{timestamp}.csv \
+  --dry-run  # Always test first!
+```
+
+### 📋 **Verification Decision Points**
+
+- ✅ **Proceed with Deletion**: After thorough verification and stakeholder approval
+- ⚠️ **Modify List**: Remove photos that shouldn't be deleted, then proceed
+- ❌ **Abort Process**: If verification reveals significant concerns or inaccuracies
+
+---
 
 ### Photo Deletion/Expiration
+
+**Only proceed after completing the verification steps above.**
 
 Deletes or expires photos based on analysis results targeting Photo IDs via CSV input:
 

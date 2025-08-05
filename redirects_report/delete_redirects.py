@@ -39,7 +39,7 @@ class DeleteRedirects:
         self.max_workers = max_workers
         self.batch_size = batch_size
         self.rate_limiter = RateLimiter(rate_limit)
-        self.logger = setup_logging(f"{self.org_for_filename}_delete_redirects")
+        self.logger = setup_logging(f"{self.org_for_filename}_redirects")
 
         # Statistics for benchmarking
         self.stats = {

@@ -15,7 +15,7 @@ from utils import (
     format_duration,
     PerformanceBenchmark
 )
-from .parallel_processor import ImagesParallelProcessor
+from .images_parallel_processor import ImagesParallelProcessor
 
 PHOTO_API_URL = "https://api.{}.arcpublishing.com/photo/api/v2/photos/{}/"
 EXPIRATION = "2000-01-01T00:00:00Z"

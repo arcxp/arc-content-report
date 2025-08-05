@@ -1,6 +1,6 @@
 """
-Parallel Processor for Arc XP Org Wires Report
-Handles concurrent API calls and consolidated CSV output for wires content
+Parallel Processor for Arc XP Wires Identification and Analysis
+Handles concurrent API calls for fetching wires content by date ranges and consolidated CSV output
 """
 import logging
 import pandas as pd

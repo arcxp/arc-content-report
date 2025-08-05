@@ -23,7 +23,7 @@ from utils import (
     format_duration,
     PerformanceBenchmark
 )
-from .parallel_processor import ImagesParallelProcessor
+from .images_parallel_processor import ImagesParallelProcessor
 
 PHOTO_API_SEARCH_URL_WITH_DATES = "https://api.{}.arcpublishing.com/photo/api/v2/photos?published=true&startDateUploaded={}&endDateUploaded={}"
 PHOTO_API_SEARCH_URL_ALL_PHOTOS = "https://api.{}.arcpublishing.com/photo/api/v2/photos?published=true"

@@ -1,6 +1,6 @@
 # arc-content-report
 
-A suite of Python tools for analyzing and managing Arc XP content. This repository provides script templates for identifying redirects, analyzing unpublished wires content, and managing unused published photos in Photo Center. All modules feature parallel processing, rate limiting, and comprehensive logging for content analysis workflows.
+A suite of Python tools for analyzing and managing Arc XP content that are low value and candidates for deletion. This repository provides script templates for identifying redirects, unpublished wires content, and unused published photos. All modules feature parallel processing, rate limiting, and comprehensive logging for content analysis workflows.
 
 You are encouraged to clone the repository, run the script templates in a local development environment, and customize the script templates with customizations that make them conform to your organizations unique content and business rules.
 
@@ -18,13 +18,15 @@ You are encouraged to clone the repository, run the script templates in a local 
 
 - **`wires_report/`** - Unpublished story wires content analysis and cleanup
   - `identify_wires.py` - Identifies unpublished wires content for potential deletion
-  - `parallel_processor.py` - Parallel processing engine with ElasticSearch query optimization
+  - `identify_wires_parallel_processor.py` - Parallel processing engine with ElasticSearch query optimization for wires identification
+  - `delete_wires.py` - Deletes wires
+  - `delete_wires_parallel_processor.py` - Parallel processing engine for wires deletion
 
 - **`images_report/`** - Photo Center unused published image analysis and management
   - `published_photo_analysis.py` - Analyzes published photos to identify unused images
   - `delete_or_expire_photos.py` - Deletes or expires photos from Photo Center
   - `create_lightbox_cache.py` - Creates SQLite cache of lightbox data for analysis of photo usage in lightboxes
-  - `parallel_processor.py` - Parallel processing engine for photo operations
+  - `images_parallel_processor.py` - Parallel processing engine for photo operations and image management
 
 #### Shared Utilities
 - **`daterange_builder.py`** - Automatic date range splitting for API rate limits

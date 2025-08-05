@@ -1,6 +1,6 @@
 """
-Parallel Processor for Arc XP Images Report
-Handles concurrent API calls for photo analysis and management
+Parallel Processor for Arc XP Images Analysis and Management
+Handles concurrent API calls for photo analysis, lightbox operations, and image management
 """
 import logging
 import time
