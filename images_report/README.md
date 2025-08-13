@@ -2,9 +2,7 @@
 
 This module contains tools for analyzing and managing published and unreferenced photos in Arc XP Photo Center.
 
-## Overview
-
-This repository contains a comprehensive suite of scripts to identify and manage unused published photos in Arc XP Photo Center:
+## Features
 
 ### Published Photo Analysis & Identification
 - **Published Photo Analysis**: Locates published photo IDs within a specified date range and determines if they are NOT used within published stories, galleries, or lightboxes

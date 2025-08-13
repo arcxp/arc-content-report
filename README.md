@@ -134,13 +134,6 @@ export LOG_LEVEL=DEBUG
 - `ERROR`: Critical errors requiring attention
 - `DEBUG`: Detailed debugging information
 
-### Performance Metrics
-- Processing time per phase
-- API call response times
-- Memory usage statistics
-- Worker utilization rates
-- Success/failure rates
-- Average time per item
 
 ## 📄 License
 
