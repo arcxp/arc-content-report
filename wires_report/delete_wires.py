@@ -42,18 +42,18 @@ class DeleteStories:
 
         # Statistics for benchmarking
         self.stats = {
-            "total_stories_processed": 0,
-            "stories_deleted": 0,
-            "stories_failed": 0,
+            "total_wires_processed": 0,
+            "wires_deleted": 0,
+            "wires_failed": 0,
             "api_calls": 0,
             "start_time": time.time()
         }
 
-    def delete_single_story(self, arc_id: str) -> Optional[Dict[str, Any]]:
+    def delete_single_story(self, arc_id: str,) -> Optional[Dict[str, Any]]:
         """Delete a single story by its arc id"""
         if self.dry_run:
-            self.stats["stories_deleted"] += 1
-            self.logger.info(f"[DRY RUN] Would delete story {arc_id}")
+            self.stats["wires_deleted"] += 1
+            self.logger.info(f"[DRY RUN] Would delete {arc_id}")
             return {"arc_id": arc_id, "status": "deleted", "response": 200}
 
         try:
@@ -75,19 +75,19 @@ class DeleteStories:
                 headers=self.arc_auth_header,
                 timeout=30
             )
-            self.stats["api_calls"] += 1
+            self.stats["api_calls"] += 2
 
             if res.ok:
                 self.stats["stories_deleted"] += 1
-                self.logger.info(f"Successfully deleted story {arc_id}")
+                self.logger.info(f"Successfully deleted {arc_id}")
                 return {"arc_id": arc_id, "status": "deleted", "response": res.status_code}
             else:
                 self.stats["stories_failed"] += 1
-                self.logger.error(f"Failed to delete story {arc_id}: {res.status_code} - {res.text}")
+                self.logger.error(f"Failed to delete {arc_id}: {res.status_code} - {res.text}")
                 return {"arc_id": arc_id, "status": "failed", "response": res.status_code}
         except Exception as e:
             self.stats["stories_failed"] += 1
-            self.logger.error(f"Exception deleting story {arc_id}: {str(e)}")
+            self.logger.error(f"Exception deleting {arc_id}: {str(e)}")
             return {"arc_id": arc_id, "status": "error", "error": str(e)}
 
     def delete_stories_parallel(self, story_items: List[str]) -> List[Dict[str, Any]]:

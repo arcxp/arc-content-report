@@ -183,10 +183,9 @@ python -m redirects_report.delete_redirects.py \
     --dry-run  
 ```
 
-You must first compile a new CSV to feed into this script.  The CSV file generated out of the redirect report will not work as is, since that CSV will contain all redirects discovered including ones that you will want to maintain.  You should use the report CSV as a starting point and filter out of it only the redirects you want to delete. 
+Requires you to first complie a seperate CSV to feed into this script.  The CSV file generated out of the redirect report will not work as is, since that CSV will contain all redirects discovered including ones that you will want to maintain.  You should use the report CSV as a starting point and filter out of it only the redirects you want to delete. 
 
 The CSV file to send to the delete redirects script must contain two columns (header not required):
-
 ```csv
 redirect_url,website
 /path/to/redirect1,website-name

@@ -104,8 +104,8 @@ graph TD
    ```
 These variables are used to configure the SQLlite databases:
 
-- `LIGHTBOX_CACHE_DB` - Database name for lightbox cache in production
-- `LIGHTBOX_CACHE_DB_SANDBOX` - Database name for lightbox cache in sandbox environment
+- `LIGHTBOX_CACHE_DB` - Database name for lightbox cache of production environment images
+- `LIGHTBOX_CACHE_DB_SANDBOX` - Database name for lightbox cache of sandbox environment images
 
 2. **Directories**: The module will automatically create the following directories:
    - `logs/` - For log files
