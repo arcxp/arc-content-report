@@ -2,7 +2,7 @@
 
 Identifies unpublished wires content within Arc XP organizations for cleanup analysis. Generates CSV reports of all wires (both published and unpublished) with publication status, allowing external filtering to identify candidates for deletion.
 
-## 🚀 Features
+## Features
 
 ### Core Functionality
 - **Wires Discovery**: Identifies unpublished wires content within specified date ranges
@@ -15,7 +15,7 @@ Identifies unpublished wires content within Arc XP organizations for cleanup ana
 - **Deletion Candidates**: Identifies wires that have never been published for cleanup
 - **Batch Processing**: Handles large datasets efficiently with configurable workers
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 arc-content-report/
@@ -36,7 +36,7 @@ arc-content-report/
 ├── logs/                                # Logs                   
 └── spreadsheets/                        # Output CSVs
 ```
-## 🏗️ Architecture
+## Architecture
 
 ```mermaid
 graph TD
@@ -49,7 +49,7 @@ graph TD
     G --> H[Data Processing]
 ```
 
-## 🚀 Usage
+## Usage
 
 ### Wires Report
 
@@ -92,7 +92,7 @@ The CSV output helps identify wires that are candidates for deletion based on th
 - If you have access to CDN logs (e.g., Splunk), you can customize the CSV output to include the `canonical_url` of published, accessible wires stories
 - Then, use the `canonical_url` and your CDN logs to analyze traffic patterns and identify  wires that haven't received visits in a specified timeframe
 
-### 🎯 **Recommended Deletion Workflow**
+### **Recommended Deletion Workflow**
 
 ```bash
 # 1. Run wires identification to generate candidate list
@@ -164,14 +164,14 @@ The deletion process follows a two-step approach:
 
 _**Wire deletions are permanent and cannot be undone**_
 
-### 📋 **Deletion Decision Points**
+### **Deletion Decision Points**
 
 - ✅ **Proceed with Deletion**: Only wires with confirmed zero usage and stakeholder approval
 - ⚠️ **Modify List**: Remove wires that shouldn't be deleted, then proceed
 - ❌ **Abort Process**: If verification reveals significant concerns or inaccuracies
 
 
-### 🔧 **Configuration Options for Deletion**
+### **Configuration Options for Deletion**
 
 | Parameter | Default | Description |
 |-----------|---------|-------------|
@@ -182,7 +182,7 @@ _**Wire deletions are permanent and cannot be undone**_
 
 
 
-## 🪡 Customizatations
+## Customizatations
 ### Identify Wires Query
 
 The wires query in `wires_report.identify_wires_parallel_processor.fetch_wires_for_range` is limited to unpublished stories (`published:false)` that are wires (`source_type:wires`). Because published stories always also have a matching unpublished copy, restricting the query to only unpublished versions prevents duplicate content in the query results but will also bring back wires that have been published. This is why the query returns `has_published_copy`.
@@ -214,7 +214,7 @@ Customize fields in the CSV by adding or removing them directly in `wires_report
 # Customizable fields: Change fields in the CSV here: Add distributor.name, remove source.system, etc. 
 ```
 
-## 🔧 Configuration Options
+## Configuration Options
 
 
 ### Environment Setup
@@ -337,7 +337,7 @@ python -m wires_report.identify_wires \
   --end-date $(date +%Y-%m-%d)
 ```
 
-## 🛠️ Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
@@ -359,7 +359,7 @@ Error: Result window is too large
 Solution: The script automatically splits large date ranges. If issues persist, use --q-extra-filters to add more specific filters.
 ```
 
-## 📊 Output Format
+## Output Format
 
 The script generates CSV files with the following columns:
 - `ans_id`: Arc XP content ID
@@ -372,7 +372,7 @@ The script generates CSV files with the following columns:
 
 You can customize the fields output in the script in `wires_report.identify_wires_parallel_processor.fetch_wires_for_range`
 
-## 📄 License
+## License
 
 This project is proprietary to Arc XP. All rights reserved.
  

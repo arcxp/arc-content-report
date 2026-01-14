@@ -9,6 +9,7 @@ arcxp/
 *.log
 *.csv
 *.db
+*.cursorrules
 
 # Python
 __pycache__/

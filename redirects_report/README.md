@@ -2,7 +2,7 @@
 
 Identifies and validates redirects within Arc XP content, checking HTTP status codes (200/301/404) for redirect URLs to help clean up broken or outdated redirects.
 
-## 🚀 Features
+## Features
 
 ### Core Functionality
 - **Redirect Discovery**: Identifies redirects within specified date ranges
@@ -16,7 +16,7 @@ Identifies and validates redirects within Arc XP content, checking HTTP status c
 - **Status Tracking**: Records HTTP response codes for each redirect URL
 - **Batch Processing**: Handles large datasets efficiently
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 arc-content-report/
@@ -40,7 +40,7 @@ arc-content-report/
 └── spreadsheets/                        # Output CSVs
 ```
 
-## 🏗️ Architecture
+## Architecture
 
 ```mermaid
 graph TD
@@ -57,7 +57,7 @@ graph TD
     I --> J[Batch Processing]
 ```
 
-## 🚀 Usage
+## Usage
 
 ### List Redirects using a date range
 
@@ -85,7 +85,7 @@ bash redirects_report/run_script.sh
 
 Before proceeding with redirect deletion, you should analyze CDN logs to determine which redirects are actively driving engagement.
 
-### 🔍 **Engagement Analysis Requirements**
+### **Engagement Analysis Requirements**
 
 The redirect identification script finds redirects that exist, but **engagement analysis is essential** to determine which redirects are actually being used by visitors. Before running any deletion scripts, you need to:
 
@@ -111,7 +111,7 @@ The redirect identification script finds redirects that exist, but **engagement 
    - **Stakeholder Approval**: Get approval from content managers and analytics teams
    - **Gradual Approach**: Consider deleting redirects in phases, starting with lowest engagement
 
-### 🎯 **Recommended Analysis Workflow**
+### **Recommended Analysis Workflow**
 
 ```bash
 # 1. Run redirect identification to generate candidate list
@@ -142,13 +142,13 @@ python -m redirects_report.delete_redirects.py \
   --dry-run  # Always test first!
 ```
 
-### 📋 **Engagement Analysis Decision Points**
+### **Engagement Analysis Decision Points**
 
 - ✅ **Proceed with Deletion**: Only redirects with confirmed zero/minimal traffic
 - ⚠️ **Modify List**: Remove redirects with any significant engagement
 - ❌ **Abort Process**: If engagement analysis reveals high usage of redirects
 
-### 🔧 **CDN Log Analysis Tips**
+### **CDN Log Analysis Tips**
 
 - **Time Period**: Analyze logs covering at least 6-12 months for meaningful patterns
 - **Traffic Thresholds**: Consider redirects with <10 clicks/month as potential candidates
@@ -192,7 +192,7 @@ redirect_url,website
 /path/to/redirect2,website-name
 ```
 
-## 🔧 Configuration Options
+## Configuration Options
 
 
 | Parameter | Default  | Description                                                                                                                       |
@@ -262,7 +262,7 @@ python -m redirects_report.delete_redirects --org org --environment sandbox  --r
 
 ```
 
-## 🛠️ Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
@@ -278,7 +278,7 @@ Error: MemoryError
 Solution: Process smaller date ranges or reduce batch sizes in status_checker.py
 ```
 
-## 📊 Report Output Format
+## Report Output Format
 
 The report script generates CSV files with the following columns:
 - `identifier`: Arc XP content ID
@@ -289,6 +289,6 @@ The report script generates CSV files with the following columns:
 - `environment`: Environment (production/sandbox)
 - `check_404_or_200`: The HTTP status delivered when the redirect is activated. Filled when the do_404_or_200 flag is included in the script call and is True
 
-## 📄 License
+## License
 
 This project is proprietary to Arc XP. All rights reserved. 

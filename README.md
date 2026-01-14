@@ -4,7 +4,7 @@ A suite of Python tools for analyzing and managing Arc XP content that are low v
 
 You are encouraged to clone the repository, run the script templates in a local development environment, and customize the script templates with customizations that make them conform to your organizations unique content and business rules.
 
-## 📁 **Repository Structure**
+## **Repository Structure**
 
 ### Core Scripts
 
@@ -66,7 +66,7 @@ python -m pytest tests/ -v
 - **Parallel Processing**: Fast API calls with configurable worker pools
 - **Async Status Checking**: Fast HTTP status validation
 
-## 🔧 **Usage**
+## **Usage**
 
 ### Prerequisites
 - Python 3.9+
@@ -87,7 +87,7 @@ pip install -r requirements.txt
 5. Run wires report: See `wires_report/README.md`
 6. Run images report: See `images_report/README.md`
 
-### 🛠️ Running Modules in PyCharm (`-m` Flag Setup)
+### Running Modules in PyCharm (`-m` Flag Setup)
 
 Using the PyCharm IDE allows you to set breakpoints to stop the code while it's running and examine the variables and their values that exist at the point in time. While not necessary for the function of these modules, it can be a useful development or debugging tool.
 
@@ -116,11 +116,11 @@ To run any module (e.g., `redirects_report.identify_redirects`, `wires_report.id
    - Click **Apply**, then **OK**.
    - Select your new configuration and click the green run arrow ▶️.
 
-> 💡 **Why this is needed:**  
+> **Why this is needed:**  
 > Using the `-m` flag ensures the module is run in package context, which is important for relative imports. Running it this way also avoids issues with PyCharm injecting `--file` and other debug flags, which can break CLI tools using `argparse`.
 
 
-## 📈 Monitoring and Logging
+## Monitoring and Logging
 
 ### Debug Mode
 Enable debug logging:
@@ -135,6 +135,6 @@ export LOG_LEVEL=DEBUG
 - `DEBUG`: Detailed debugging information
 
 
-## 📄 License
+## License
 
 This project is proprietary to Arc XP. All rights reserved. 

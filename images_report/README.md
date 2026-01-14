@@ -28,7 +28,7 @@ This module contains tools for analyzing and managing published and unreferenced
 
 This module ensures safe, efficient cleanup of unused photos while preserving all actively used content.
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 arc-content-report/
@@ -53,7 +53,7 @@ arc-content-report/
 └── databases/                           # Databases
 ```
 
-## 🏗️ Architecture
+## Architecture
 
 ```mermaid
 graph TD
@@ -155,7 +155,7 @@ Analyze published photos to identify candidates for deletion:
 ./images_report/run_published_photo_analysis.sh \
   --pc-published-wires
 ```
- **🔍 How to Find the Value for --pc-source-id**
+ **How to Find the Value for --pc-source-id**
 
 To filter by a specific wires photo distributor (such as Associated Press), use the following steps:
 
@@ -184,7 +184,7 @@ This is an _**advanced customization**_ and is not included by default. If your 
 
 **Before proceeding with photo deletion, you should strongly consider performing external verification of the identified photos.**
 
-### 🔍 **Verification Checklist**
+### **Verification Checklist**
 
 The analysis script generates a list of photos that appear to be unused, but **human verification is essential** to ensure accuracy. Before running any deletion scripts, please:
 
@@ -207,7 +207,7 @@ The analysis script generates a list of photos that appear to be unused, but **h
    - **Irreversible Action**: Photo deletions are permanent and cannot be undone
    - **Stakeholder Approval**: Get approval from appropriate content managers or editors
 
-### 🎯 **Recommended Verification Process**
+### **Recommended Verification Process**
 
 ```bash
 # 1. Run analysis to generate candidate list
@@ -230,7 +230,7 @@ The analysis script generates a list of photos that appear to be unused, but **h
   --dry-run  # Always test first!
 ```
 
-### 📋 **Verification Decision Points**
+### **Verification Decision Points**
 
 - ✅ **Proceed with Deletion**: After thorough verification and stakeholder approval
 - ⚠️ **Modify List**: Remove photos that shouldn't be deleted, then proceed
@@ -422,7 +422,7 @@ Total duration: 0m 5s
 - The lightbox cache should be updated periodically for accurate results
 - Use sandbox environment for testing before running in production 
 
-## 🔧 Troubleshooting
+## Troubleshooting
 
 ### Common Issues and Solutions
 
@@ -516,12 +516,12 @@ Error: HTTPSConnectionPool(host='api.example.arcpublishing.com', port=443): Max 
 4. **Hard Delete vs Expire**: Understand the difference between `--hard-delete` and default expiration
 
 
-## 📚 API and ALC Documentation
+## API and ALC Documentation
 
 - [Photo API Documentation](https://dev.arcxp.com/api/content-administration/photo-api/)
 - [Content API Documentation](https://dev.arcxp.com/api/public-content-retrieval/content-api/)
 - [Dev.Arcxp Wire Photos and Expiration](https://dev.arcxp.com/photo-center/developer-docs/photo-center-wire-photos-and-expiration/)
 
-## 📄 License
+## License
 
 This project is proprietary to Arc XP. All rights reserved. 
