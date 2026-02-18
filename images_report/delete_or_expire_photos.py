@@ -46,6 +46,7 @@ class DeleteDefunctPhotos:
         self.rate_limiter = RateLimiter(rate_limit)
         self.logger = setup_logging(f"{self.org_for_filename}_delete_photos")
         
+
         # Statistics for benchmarking
         self.stats = {
             "total_photos_processed": 0,

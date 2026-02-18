@@ -158,9 +158,6 @@ python -m wires_report.delete_wires \
     --dry-run  
 ```
 
-The deletion process follows a two-step approach:
-1. **Unpublish**: Although the wires stories you are deleting are expected to be unpublished already, this is a step that can prevent certain race conditions behind the scenes
-2. **Delete**: Then permanently deletes the story from the system
 
 _**Wire deletions are permanent and cannot be undone**_
 

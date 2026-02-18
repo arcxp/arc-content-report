@@ -58,18 +58,7 @@ class DeleteStories:
 
         try:
             self.rate_limiter.wait_if_needed()
-            # First unpublish the story
-            res = requests.delete(
-                DRAFT_UNPUBLISH_URL.format(self.org, arc_id),
-                headers=self.arc_auth_header,
-                timeout=30
-            )
-            self.stats["api_calls"] += 1
-            
-            # Wait for unpublish to complete
-            time.sleep(5)
-            
-            # Then delete the story
+
             res = requests.delete(
                 DRAFT_DELETE_URL.format(self.org, arc_id),
                 headers=self.arc_auth_header,
@@ -193,7 +182,7 @@ def main():
         return 1
 
     # Setup authentication header
-    arc_auth_header = {"Authorization": f"Bearer {args.bearer_token}"}
+    arc_auth_header = {"Authorization": f"Bearer {args.bearer_token}", "Arc-Priority": "ingestion"}
 
     # Modify org based on environment
     org_with_env = args.org

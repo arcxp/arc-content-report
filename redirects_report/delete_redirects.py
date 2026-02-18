@@ -185,7 +185,7 @@ def main():
         return 1
 
     # Setup authentication header
-    arc_auth_header = {"Authorization": f"Bearer {args.bearer_token}"}
+    arc_auth_header = {"Authorization": f"Bearer {args.bearer_token}", "Arc-Priority": "ingestion"}
 
     # Modify org based on environment
     org_with_env = args.org
